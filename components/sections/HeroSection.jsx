@@ -103,13 +103,13 @@ const HeroSection = () => {
 
             {/* Scroll Indicator */}
             <motion.div 
-              className="mt-16 hidden sm:flex sm:justify-center"
+              className="hidden sm:flex sm:justify-center"
               variants={itemVariants}
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
               <div className="w-6 h-10 border-2 border-yellow-400 rounded-full flex justify-center">
-                <div className="w-1 h-3 bg-yellow-400 rounded-full mt-2"></div>
+                <div className="w-1 h-3 bg-yellow-400 rounded-full mt-62"></div>
               </div>
             </motion.div>
           </motion.div>
@@ -128,26 +128,27 @@ const HeroSection = () => {
           >
             {features.map((feature, index) => (
               <motion.div
-                key={index}
-                className="flex flex-col items-center text-center gap-4 bg-gray-50 p-8 rounded-xl hover:bg-yellow-50 transition-all duration-300 shadow-sm hover:shadow-md"
-                whileHover={{ scale: 1.03, y: -5 }}
-                transition={{ duration: 0.3 }}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-              >
-                <div className="text-yellow-600 flex-shrink-0 bg-yellow-100 p-4 rounded-full">
-                  {feature.icon}
-                </div>
-                <div>
-                  <h3 className="text-gray-900 font-bold text-sm mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm">
-                    {feature.description}
-                  </p>
-                </div>
-              </motion.div>
+              key={index}
+              className="flex flex-col items-center text-center gap-4 bg-[#191919] p-8 rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-sm hover:shadow-md group"
+              whileHover={{ scale: 1.03, y: -5 }}
+              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="text-yellow-600 flex-shrink-0 bg-yellow-100 p-4 rounded-full">
+                {feature.icon}
+              </div>
+              <div>
+                <h3 className="text-white group-hover:text-gray-900 font-bold text-sm mb-2 transition-colors duration-300">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-400 group-hover:text-gray-700 text-sm transition-colors duration-300">
+                  {feature.description}
+                </p>
+              </div>
+            </motion.div>
+            
             ))}
           </motion.div>
         </div>
