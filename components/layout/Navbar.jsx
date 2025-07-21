@@ -86,11 +86,16 @@ export default function Navbar() {
           src="/assets/Logo.png"
           alt="Chicken-Pack"
           fill
+          sizes="(max-width: 768px) 56px, 64px"
           className="object-contain"
           priority
         />
       </div>
-      <span className={`font-bold text-[#3D3C42] leading-tight transition-all duration-300 group-hover:text-[#7F5283] ${
+      <span className={`font-bold leading-tight transition-all duration-300 ${
+        scrolled 
+          ? 'text-[#3D3C42] group-hover:text-[#7F5283]' 
+          : 'text-white group-hover:text-white/90'
+      } ${
         isMobile ? 'text-xl' : 'text-xl sm:text-2xl lg:text-3xl'
       }`}>
         Chicken Pack
@@ -101,15 +106,17 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-out ${
+        className={`fixed h-[12vh] top-0 left-0 w-full z-50 transition-all duration-500 ease-out ${
           scrolled 
-            ? 'backdrop-blur-xl bg-white/90 shadow-xl border-b border-white/20' 
+            ? 'backdrop-blur-lg bg-white/90 shadow-xl' 
             : 'bg-transparent'
         }`}
       >
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-4 sm:py-6 flex items-center justify-between">
-          {/* Unified Logo */}
-          <Logo onClick={closeMenu} />
+        <div className="max-w-[1440px] mx-auto px-2 sm:px-8 py-4 sm:py-4 flex items-center justify-between">
+          {/* Logo - Only show when mobile menu is closed */}
+          <div className={`transition-opacity duration-300 ${isOpen ? 'md:opacity-100 opacity-0' : 'opacity-100'}`}>
+            <Logo onClick={closeMenu} />
+          </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-10 lg:gap-12">
@@ -117,10 +124,16 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-lg lg:text-xl font-semibold text-gray-700 hover:text-[#7F5283] transition-all duration-300 hover:scale-105 relative group"
+                className={`text-lg lg:text-xl font-semibold transition-all duration-300 hover:scale-105 relative group ${
+                  scrolled 
+                    ? 'text-gray-700 hover:text-[#7F5283]' 
+                    : 'text-white hover:text-white/90'
+                }`}
               >
                 {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#7F5283] transition-all duration-300 group-hover:w-full"></span>
+                <span className={`absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${
+                  scrolled ? 'bg-[#7F5283]' : 'bg-white'
+                }`}></span>
               </Link>
             ))}
 
@@ -137,8 +150,12 @@ export default function Navbar() {
           {/* Mobile Menu Toggle - Fixed Toggle Logic */}
           <button
             onClick={toggleMenu}
-            className="md:hidden text-[#7F5283] p-4 rounded-full hover:bg-[#7F5283]/10 transition-all duration-300 hover:scale-110 transform relative overflow-hidden"
-            aria-label={isOpen ? "Close menu" : "Open menu"}
+            className={`md:hidden p-4 rounded-full transition-all duration-300 hover:scale-110 transform relative overflow-hidden ${
+              scrolled 
+                ? 'text-[#7F5283] hover:bg-[#7F5283]/10' 
+                : 'text-white hover:bg-white/10'
+            }`}
+            aria-expanded aria-label={isOpen ? "Close menu" : "Open menu"}
             type="button"
           >
             <div className="relative w-9 h-9 flex items-center justify-center">
@@ -172,8 +189,24 @@ export default function Navbar() {
         }`}
         onClick={closeMenu} // Close when clicking overlay background
       >
-        {/* Mobile Menu Header with Logo and Close Button */}
+        {/* Mobile Menu Header with Logo */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          {/* Logo in mobile menu */}
+          <div className="flex items-center gap-3">
+            <div className="relative h-12 w-12">
+              <Image
+                src="/assets/Logo.png"
+                alt="Chicken-Pack"
+                fill
+                sizes="48px"
+                className="object-contain"
+              />
+            </div>
+            <span className="text-xl font-bold text-[#3D3C42]">
+              Chicken Pack
+            </span>
+          </div>
+          
           <button
             onClick={closeMenu}
             className="text-[#7F5283] p-2 rounded-full hover:bg-[#7F5283]/10 transition-all duration-300"

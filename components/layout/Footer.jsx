@@ -6,7 +6,7 @@ import { FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#FEFBF6] border-t border-gray-200 py-14 px-4 sm:px-8 mt-24 md:pl-32">
+    <footer className="border-gray-200 py-14 px-2 sm:px-8 mt-24 md:pl-32">
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-[#3D3C42]">
 
         {/* Logo and Description */}
