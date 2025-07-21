@@ -83,7 +83,7 @@ export default function Navbar() {
         isMobile ? 'h-14 w-14' : 'h-12 w-12 sm:h-16 sm:w-16'
       }`}>
         <Image
-          src="/assets/logo3.png"
+          src="/assets/Logo.png"
           alt="Chicken-Pack"
           fill
           className="object-contain"
