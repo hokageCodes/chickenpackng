@@ -11,9 +11,8 @@ export default function Navbar() {
 
   const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '#products', label: 'Products' },
-    { href: '#blog', label: 'Blog' },
-    { href: '#company', label: 'Company' },
+    { href: '/products', label: 'Products' },
+    { href: '/company', label: 'Company' },
   ];
 
   useEffect(() => {
