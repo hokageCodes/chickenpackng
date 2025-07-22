@@ -23,41 +23,123 @@ export default function ChickenPackCompanyPage() {
         </p>
         </section>
 
-        <section className="bg-[#A6D1E6] py-20 px-6 md:px-16 text-[#3D3C42]">
-  <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">
-    Meet the Brains Behind Chicken Pack
-  </h2>
+        <section className="py-24 px-4 md:px-16 relative">
+  {/* Animated background elements */}
+  <div className="absolute inset-0 overflow-hidden">
+    <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#3498DB]/20 rounded-full blur-3xl animate-pulse"></div>
+    <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-yellow-500 rounded-full blur-2xl animate-pulse delay-700"></div>
+  </div>
 
-  <div className="grid gap-12 md:grid-cols-2 max-w-6xl mx-auto">
-    {/* CEO Card 1 */}
-    <div className="flex flex-col items-center text-center bg-white shadow-xl p-8 rounded-2xl">
-      <img
-        src="/philip.jpg" // Replace with actual path
-        alt="Philip Omoike"
-        className="w-36 h-36 object-cover rounded-full border-4 border-[#7F5283] mb-6"
-      />
-      <h3 className="text-2xl font-bold mb-1">Philip Omoike</h3>
-      <p className="text-[#7F5283] font-semibold mb-4">Co-CEO, Chicken Pack</p>
-      <p className="text-base text-[#3D3C42] opacity-80 leading-relaxed">
-        With a sharp eye for operations and a heart for community impact, Philip has led Chicken Pack's supply chain and production quality to unmatched heights.
+  <div className="relative z-10 max-w-7xl mx-auto">
+    {/* Header */}
+    <div className="text-center mb-20">
+      <div className="inline-block">
+        <h2 className="text-5xl md:text-7xl font-black text-white mb-4 tracking-tight">
+          THE MINDS
+        </h2>
+        <div className="h-2 bg-gradient-to-r from-[#3498DB] to-[#A6D1E6] rounded-full transform -skew-x-12"></div>
+      </div>
+      <p className="text-xl text-gray-300 mt-8 max-w-3xl mx-auto font-light">
+        Behind every revolution are the visionaries who dare to challenge the status quo
       </p>
     </div>
 
-    {/* CEO Card 2 */}
-    <div className="flex flex-col items-center text-center bg-white shadow-xl p-8 rounded-2xl">
-      <img
-        src="/abiodun.jpg" // Replace with actual path
-        alt="Abiodun Young"
-        className="w-36 h-36 object-cover rounded-full border-4 border-[#7F5283] mb-6"
-      />
-      <h3 className="text-2xl font-bold mb-1">Abiodun Young</h3>
-      <p className="text-[#7F5283] font-semibold mb-4">Co-CEO, Chicken Pack</p>
-      <p className="text-base text-[#3D3C42] opacity-80 leading-relaxed">
-        Abiodun brings passion, marketing brilliance, and innovation to the Chicken Pack brand, ensuring the name is known and trusted across Nigeria.
-      </p>
+    {/* Split Layout */}
+    <div className="grid lg:grid-cols-2 gap-0 bg-white rounded-3xl overflow-hidden shadow-2xl">
+      
+      {/* Left Side - Philip */}
+      <div className="relative bg-gradient-to-br from-[#3498DB] to-[#2980B9] p-12 text-white">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
+        
+        <div className="relative z-10">
+          <div className="flex items-start gap-6 mb-8">
+            <div className="w-24 h-24 rounded-2xl overflow-hidden border-4 border-white/30 shadow-xl flex-shrink-0">
+              <img
+                src="/ceo1.jpg"
+                alt="Philip Omoike"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <h3 className="text-3xl font-bold mb-2">Philip Omoike</h3>
+              <p className="text-blue-100 text-lg font-medium">Co-Founder & CEO</p>
+              <div className="w-16 h-1 bg-white/50 mt-3 rounded-full"></div>
+            </div>
+          </div>
+
+          <blockquote className="text-lg leading-relaxed mb-8 text-blue-50 italic">
+            "Innovation isn't just about technology—it's about reimagining how we feed the world sustainably."
+          </blockquote>
+
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+              <span className="text-blue-100">15+ years in AgriTech</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+              <span className="text-blue-100">Food Systems Innovation</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+              <span className="text-blue-100">Sustainable Agriculture Expert</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Abiodun */}
+      <div className="relative bg-gradient-to-br from-[#A6D1E6] to-[#7FB3D3] p-12 text-[#2C3E50]">
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/20 rounded-full blur-xl"></div>
+        
+        <div className="relative z-10">
+          <div className="flex items-start gap-6 mb-8">
+            <div className="w-24 h-24 rounded-2xl overflow-hidden border-4 border-white/50 shadow-xl flex-shrink-0">
+              <img
+                src="/ceo2.jpg"
+                alt="Abiodun Young"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <h3 className="text-3xl font-bold mb-2">Abiodun Young</h3>
+              <p className="text-[#2980B9] text-lg font-medium">Co-Founder & CEO</p>
+              <div className="w-16 h-1 bg-[#2C3E50]/30 mt-3 rounded-full"></div>
+            </div>
+          </div>
+
+          <blockquote className="text-lg leading-relaxed mb-8 text-[#34495E] italic">
+            "Excellence in execution transforms bold visions into market-changing realities."
+          </blockquote>
+
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-[#2C3E50] rounded-full"></div>
+              <span className="text-[#34495E]">Supply Chain Mastery</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-[#2C3E50] rounded-full"></div>
+              <span className="text-[#34495E]">Operations Excellence</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-[#2C3E50] rounded-full"></div>
+              <span className="text-[#34495E]">Market Strategy Leader</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Bottom CTA */}
+    <div className="text-center mt-16">
+      <p className="text-gray-300 text-lg mb-6">Ready to join the revolution?</p>
+      <button className="bg-gradient-to-r from-[#3498DB] to-[#A6D1E6] text-white px-10 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 hover:scale-105">
+        Connect With Our Team
+      </button>
     </div>
   </div>
-</section>
+</section> 
+
 
 
       {/* Vision & Mission */}
