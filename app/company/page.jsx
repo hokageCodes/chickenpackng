@@ -5,9 +5,9 @@ import { FaCheckCircle } from 'react-icons/fa';
 
 export default function ChickenPackCompanyPage() {
   return (
-    <div className="bg-[#FEFBF6] text-[#3D3C42] text-base">
+    <div className="bg-[#191919] text-[#3D3C42] text-base">
       {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[55vh] w-full bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/assets/2.jpg')" }}>
+      <section className="relative h-[60vh] md:h-[7 5vh] w-full bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/assets/2.jpg')" }}>
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center px-4 text-center">
             <h1 className="text-3xl md:text-7xl font-bold text-white leading-tight max-w-5xl">
             Welcome To Our Coop
@@ -15,31 +15,50 @@ export default function ChickenPackCompanyPage() {
         </div>
         </section>
 
-        <section className="py-10 px-6 md:px-16 text-center bg-[#FEFBF6]">
-        <p className="max-w-2xl mx-auto text-lg text-[#000000]">
+        <section className="py-10 px-6 md:px-16 text-center">
+        <p className="max-w-2xl mx-auto text-lg text-gray-400">
             Chicken Pack specializes in providing high-quality, fresh broiler meat and eggs to households,
             restaurants, and businesses. Our mission is to deliver fresh, healthy, and affordable poultry
             products while maintaining the highest standards of quality and hygiene.
         </p>
         </section>
 
+        <section className="bg-[#A6D1E6] py-20 px-6 md:px-16 text-[#3D3C42]">
+  <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">
+    Meet the Brains Behind Chicken Pack
+  </h2>
 
-        <section className="py-10 px-6 md:px-16 text-center bg-[#FEFBF6]">
-        <p className="max-w-2xl mx-auto text-lg text-[#000000]">
-            Chicken Pack specializes in providing high-quality, fresh broiler meat and eggs to households,
-            restaurants, and businesses. Our mission is to deliver fresh, healthy, and affordable poultry
-            products while maintaining the highest standards of quality and hygiene.
-        </p>
-        </section>
+  <div className="grid gap-12 md:grid-cols-2 max-w-6xl mx-auto">
+    {/* CEO Card 1 */}
+    <div className="flex flex-col items-center text-center bg-white shadow-xl p-8 rounded-2xl">
+      <img
+        src="/philip.jpg" // Replace with actual path
+        alt="Philip Omoike"
+        className="w-36 h-36 object-cover rounded-full border-4 border-[#7F5283] mb-6"
+      />
+      <h3 className="text-2xl font-bold mb-1">Philip Omoike</h3>
+      <p className="text-[#7F5283] font-semibold mb-4">Co-CEO, Chicken Pack</p>
+      <p className="text-base text-[#3D3C42] opacity-80 leading-relaxed">
+        With a sharp eye for operations and a heart for community impact, Philip has led Chicken Pack's supply chain and production quality to unmatched heights.
+      </p>
+    </div>
 
+    {/* CEO Card 2 */}
+    <div className="flex flex-col items-center text-center bg-white shadow-xl p-8 rounded-2xl">
+      <img
+        src="/abiodun.jpg" // Replace with actual path
+        alt="Abiodun Young"
+        className="w-36 h-36 object-cover rounded-full border-4 border-[#7F5283] mb-6"
+      />
+      <h3 className="text-2xl font-bold mb-1">Abiodun Young</h3>
+      <p className="text-[#7F5283] font-semibold mb-4">Co-CEO, Chicken Pack</p>
+      <p className="text-base text-[#3D3C42] opacity-80 leading-relaxed">
+        Abiodun brings passion, marketing brilliance, and innovation to the Chicken Pack brand, ensuring the name is known and trusted across Nigeria.
+      </p>
+    </div>
+  </div>
+</section>
 
-      {/* CEO Section */}
-      <section className="bg-[#A6D1E6] py-12 px-6 md:px-16 text-center text-[#3D3C42]">
-        <h2 className="text-2xl font-semibold mb-2">Philip Omoike</h2>
-        <p className="text-lg font-medium mb-4">CEO of Chicken Pack</p>
-        <h2 className="text-2xl font-semibold mb-2">Abiodun Young</h2>
-        <p className="text-lg font-medium">CEO of Chicken Pack</p>
-      </section>
 
       {/* Vision & Mission */}
       <section className="py-16 px-6 md:px-16 bg-white text-center">
