@@ -117,8 +117,8 @@ const HeroSection = () => {
       </section>
 
       {/* Features Section - Outside hero with solid background */}
-      <section className="bg-white py-16">
-        <div className="container mx-auto px-4">
+      <section className="py-16">
+        <div className="container mx-auto px-2">
           <motion.div 
             className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
             initial={{ opacity: 0, y: 50 }}

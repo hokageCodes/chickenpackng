@@ -28,7 +28,7 @@ const products = [
 export default function ProductSection() {
   return (
     <section className="py-16">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-2">
         <div className="grid lg:grid-cols-2 gap-12">
           {products.map((product, index) => (
             <motion.div
@@ -49,9 +49,9 @@ export default function ProductSection() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="md:w-1/2 p-6 flex flex-col justify-between gap-4 text-white">
+                <div className="md:w-1/2 p-4 flex flex-col justify-between gap-4 text-white">
                   <p className="text-2xl md:-mb-12 text-yellow-500 font-medium">{product.weight}</p>
-                  <h2 className="text-4xl font-bold">{product.title}</h2>
+                  <h2 className="text-4xl">{product.title}</h2>
                   <p className="text-lgs text-gray-300">{product.desc}</p>
                   <div className="text-lg font-bold space-x-3">
                     <span>{product.price}</span>
