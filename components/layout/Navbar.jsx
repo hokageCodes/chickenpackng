@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Menu, X, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
+import { FaEnvelope } from 'react-icons/fa';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -111,7 +112,7 @@ export default function Navbar() {
             : 'bg-transparent'
         }`}
       >
-        <div className="max-w-[1440px] mx-auto px-2 sm:px-8 py-4 sm:py-4 flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto sm:px-[80px] py-4 sm:py-4 flex items-center justify-between">
           {/* Logo - Only show when mobile menu is closed */}
           <div className={`transition-opacity duration-300 ${isOpen ? 'md:opacity-100 opacity-0' : 'opacity-100'}`}>
             <Logo onClick={closeMenu} />
@@ -141,8 +142,8 @@ export default function Navbar() {
               className="ml-6 flex items-center gap-3 bg-[#500D07] text-white px-4 py-3 lg:px-4 lg:py-2 rounded-full font-semibold text-lg lg:text-lg hover:bg-[#7F5283] hover:shadow-xl transition-all duration-300 hover:scale-105 transform"
               style={{ color: 'white' }}
             >
-              <ShoppingCart size={20} className="text-white" />
-              Shop Now
+              <FaEnvelope size={20} className="text-white" />
+              Send A Message
             </button>
           </nav>
 
@@ -244,8 +245,8 @@ export default function Navbar() {
               }`}
               style={{ animationDelay: `${navLinks.length * 100}ms` }}
             >
-              <ShoppingCart size={22} />
-              Leave a review
+                <FaEnvelope size={20} className="text-white" />
+                Send A Message
             </button>
           </nav>
 

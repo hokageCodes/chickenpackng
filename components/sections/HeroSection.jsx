@@ -1,7 +1,7 @@
 "use client"
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Wallet, Gift, Truck, Phone } from 'lucide-react';
+import { ShoppingCart, Wallet, Gift, Truck, Phone, BoxIcon, ArrowRightCircleIcon } from 'lucide-react';
 
 // Hero Section Component
 const HeroSection = () => {
@@ -23,22 +23,22 @@ const HeroSection = () => {
 
   const features = [
     {
-      icon: <Wallet className="w-6 h-6" />, 
+      icon: <Wallet className="w-8 h-8" />, 
       title: "CASH ON DELIVERY", 
       description: "100% money back guarantee"
     },
     {
-      icon: <Gift className="w-6 h-6" />, 
+      icon: <Gift className="w-8 h-8" />, 
       title: "SPECIAL GIFT CARD", 
       description: "Offer special bonuses with gift"
     },
     {
-      icon: <Truck className="w-6 h-6" />, 
+      icon: <Truck className="w-8 h-8" />, 
       title: "FREE SHIPPING IN LAGOS", 
       description: "On Orders over ₦ 20,000.00"
     },
     {
-      icon: <Phone className="w-6 h-6" />, 
+      icon: <Phone className="w-8 h-8" />, 
       title: "24/7 CUSTOMER SERVICE", 
       description: "Call us +234 90 783 547 44"
     }
@@ -48,111 +48,153 @@ const HeroSection = () => {
     <>
       {/* Hero Section */}
       <section 
-        className="relative min-h-screen bg-cover bg-center bg-no-repeat bg-fixed sm:bg-scroll" 
+  className="relative min-h-screen bg-cover bg-center bg-no-repeat bg-fixed sm:bg-scroll px-4 sm:px-[111px]"
+  style={{
+    backgroundImage: `url('/assets/hero-bg.webp')`
+  }}
+>
+  {/* Background overlay */}
+  <div className="absolute inset-0 bg-black/50"></div>
+
+  <div className="relative z-10 max-w-screen-xl mx-auto px-2 py-12">
+    <motion.div 
+      className="flex flex-col justify-center min-h-screen space-y-8 text-center sm:text-left"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* Tag */}
+      <motion.div variants={itemVariants} className="flex justify-center sm:justify-start">
+        <div 
+          className="inline-flex items-center justify-center text-sm sm:text-base"
+          style={{
+            backgroundColor: '#733D394D',
+            color: '#A88683',
+            fontFamily: 'Lexend Deca',
+            borderRadius: '100px',
+            padding: '4px 8px',
+            gap: '10px'
+          }}
+        >
+          Organic Fresh Chicken
+        </div>
+      </motion.div>
+
+      {/* Heading */}
+      <motion.h1 
+        className="text-white text-4xl sm:text-8xl leading-tight max-w-full text-center sm:text-left"
+        variants={itemVariants}
         style={{
-          backgroundImage: `url('/assets/hero-bg.webp')`
+          fontFamily: 'Viaoda Libre',
+          fontWeight: 400,
+          letterSpacing: '-2%'
         }}
       >
-        {/* Background overlay - strong opacity for text visibility */}
-        <div className="absolute inset-0 bg-black/50"></div>
+        Fresh, Safe Quality, Tender Chickens
+      </motion.h1>
 
-        <div className="relative z-10 container mx-auto px-2 py-12">
-          <motion.div 
-            className="flex flex-col justify-center min-h-screen space-y-8 text-left sm:text-center"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
+      {/* Subtext */}
+      <motion.p 
+        className="text-center sm:text-left px-2 sm:px-0"
+        variants={itemVariants}
+        style={{
+          fontFamily: 'Lexend Deca',
+          fontWeight: 500,
+          fontSize: '16px',
+          lineHeight: '26px',
+          color: '#98A2B3'
+        }}
+      >
+        Food that matters - to me, to farmers and to the planet we all share.
+      </motion.p>
+
+      {/* CTA Buttons */}
+      <motion.div 
+        className="flex flex-col sm:flex-row gap-4 mt-6 sm:items-start items-center"
+        variants={itemVariants}
+      >
+        <button 
+          className="text-white text-base font-bold rounded-full transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 w-full sm:w-auto"
+          style={{
+            backgroundColor: '#733D394D',
+            border: '1px solid white',
+            borderRadius: '100px',
+            padding: '12px 24px',
+            gap: '8px'
+          }}
+        >
+          Build my pack
+          <BoxIcon size={20} />
+        </button>
+
+        <button 
+          className="text-white font-bold rounded-full transition-all duration-200 flex items-center justify-center hover:scale-105 transform w-full sm:w-auto"
+          style={{
+            backgroundColor: '#733D394D',
+            border: '2px solid white',
+            borderRadius: '100px',
+            padding: '12px 24px',
+            gap: '8px'
+          }}
+        >
+          How it Works
+          <ArrowRightCircleIcon size={20} />
+        </button>
+      </motion.div>
+
+      {/* Features */}
+      <motion.div 
+        className="flex flex-col sm:flex-row sm:flex-wrap gap-4 mt-10 items-center sm:items-start"
+        variants={itemVariants}
+      >
+        {features.map((feature, index) => (
+          <motion.div
+            key={index}
+            className="flex items-center transition-all duration-300 shadow-sm hover:shadow-md group w-full sm:w-auto px-4 py-2"
+            whileHover={{ scale: 1.02 }}
+            style={{
+              backgroundColor: 'rgba(80, 13, 7, 0.3)',
+              borderRadius: '10px'
+            }}
           >
-            {/* Badge */}
-            <motion.div variants={itemVariants} className="sm:flex sm:justify-center">
-              <span className="inline-block bg-yellow-500 text-black px-6 py-3 rounded-full text-sm font-bold">
-                Organic Fresh Chicken
-              </span>
-            </motion.div>
-
-            {/* Main Heading - Huge on mobile, left-aligned */}
-            <motion.h1 
-              className="text-6xl sm:text-5xl md:text-6xl lg:text-8xl text-white leading-[1.1] w-full max-w-none sm:max-w-4xl sm:mx-auto"
-              variants={itemVariants}
+            <div 
+              className="flex-shrink-0 flex items-center justify-center text-yellow-500 mr-2"
+              style={{
+                width: '32px',
+                height: '32px'
+              }}
             >
-              Fresh, Safe Quality, Tender Chickens
-            </motion.h1>
-
-            {/* Subtitle */}
-            <motion.p 
-              className="text-white text-lg sm:text-xl md:text-2xl w-full max-w-none sm:max-w-2xl sm:mx-auto"
-              variants={itemVariants}
-            >
-              Food that matters - to me, to farmers and to the planet we all share.
-            </motion.p>
-
-            {/* CTA Buttons */}
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-8 sm:justify-center"
-              variants={itemVariants}
-            >
-              <button className="bg-yellow-500 hover:bg-yellow-500 text-black font-bold px-8 py-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-3 text-lg shadow-lg hover:shadow-xl transform hover:scale-105 w-full sm:w-auto">
-                <ShoppingCart size={24} />
-                Build my pack
-              </button>
-              <button className="text-white border-2 border-white hover:bg-yellow-600 hover:text-black font-bold px-8 py-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 text-lg bg-black/50 hover:scale-105 transform w-full sm:w-auto">
-                <ShoppingCart size={24} />
-                How it Works
-              </button>
-            </motion.div>
-
-            {/* Scroll Indicator */}
-            <motion.div 
-              className="hidden sm:flex sm:justify-center"
-              variants={itemVariants}
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <div className="w-6 h-10 border-2 border-yellow-400 rounded-full flex justify-center">
-                <div className="w-1 h-3 bg-yellow-400 rounded-full mt-62"></div>
-              </div>
-            </motion.div>
+              {feature.icon}
+            </div>
+            <div className="flex flex-col text-left">
+              <h3 
+                className="text-xs sm:text-sm"
+                style={{
+                  fontFamily: 'Lexend Deca',
+                  fontWeight: 500,
+                  color: '#A88683'
+                }}
+              >
+                {feature.title}
+              </h3>
+              <p 
+                className="text-xs"
+                style={{
+                  fontFamily: 'Lexend Deca',
+                  fontWeight: 400,
+                  color: '#733D39'
+                }}
+              >
+                {feature.description}
+              </p>
+            </div>
           </motion.div>
-        </div>
-      </section>
+        ))}
+      </motion.div>
+    </motion.div>
+  </div>
+</section>
 
-      {/* Features Section - Outside hero with solid background */}
-      <section className="py-16">
-        <div className="container mx-auto px-2">
-          <motion.div 
-            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, staggerChildren: 0.1 }}
-            viewport={{ once: true }}
-          >
-            {features.map((feature, index) => (
-              <motion.div
-              key={index}
-              className="flex flex-col items-center text-center gap-4 bg-[#191919] p-8 rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-sm hover:shadow-md group"
-              whileHover={{ scale: 1.03, y: -5 }}
-              transition={{ duration: 0.3 }}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <div className="text-yellow-600 flex-shrink-0 bg-yellow-100 p-4 rounded-full">
-                {feature.icon}
-              </div>
-              <div>
-                <h3 className="text-white group-hover:text-gray-900 font-bold text-sm mb-2 transition-colors duration-300">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-400 group-hover:text-gray-700 text-sm transition-colors duration-300">
-                  {feature.description}
-                </p>
-              </div>
-            </motion.div>
-            
-            ))}
-          </motion.div>
-        </div>
-      </section>
     </>
   );
 };
