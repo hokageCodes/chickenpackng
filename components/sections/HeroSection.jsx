@@ -53,7 +53,7 @@ const HeroSection = () => {
       `}
     >
       {/* Background overlay */}
-      <div className="absolute inset-0 bg-black/50"></div>
+      <div className="absolute inset-0 bg-black/70"></div>
 
       <div className="relative z-10 max-w-screen-xl mx-auto px-2 md:py-6">
         <motion.div

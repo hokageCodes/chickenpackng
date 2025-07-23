@@ -1,221 +1,241 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaQuoteLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+"use client"
+import React, { useState, useEffect, useRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const testimonials = [
   {
-    name: 'Marcus Rivera',
-    role: 'Executive Chef',
-    company: 'Meridian Restaurant Group',
-    quote: 'YG Farms has revolutionized our supply chain. The consistency and flavor profile of their premium cuts elevates every dish we serve.',
-    rating: 5,
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-    location: 'New York'
+    id: 1,
+    text: "We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.",
+    name: "Andrew Garfield",
+    role: "Cook"
   },
   {
-    name: 'Dr. Sarah Chen',
-    role: 'Sports Nutritionist',
-    company: 'Elite Performance Institute',
-    quote: 'The nutritional integrity and ethical sourcing practices at YG Farms align perfectly with our athletes\' performance and wellness goals.',
-    rating: 5,
-    image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-    location: 'California'
+    id: 2,
+    text: "We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.",
+    name: "Andrew Garfield",
+    role: "Cook"
   },
   {
-    name: 'James Wellington III',
-    role: 'Culinary Director',
-    company: 'Prestige Hospitality',
-    quote: 'In 30 years of fine dining, I\'ve never encountered such consistently exceptional quality. YG Farms sets the gold standard.',
-    rating: 5,
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-    location: 'Texas'
+    id: 3,
+    text: "We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.",
+    name: "Andrew Garfield",
+    role: "Cook"
   },
   {
-    name: 'Isabella Martinez',
-    role: 'Wellness Coach',
-    company: 'Pure Living Collective',
-    quote: 'My clients\' transformations speak volumes. YG Farms delivers on both taste and the clean nutrition my programs demand.',
-    rating: 5,
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-    location: 'Florida'
+    id: 4,
+    text: "We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.",
+    name: "Andrew Garfield",
+    role: "Cook"
   },
   {
-    name: 'Robert Kim',
-    role: 'Food & Beverage Director',
-    company: 'Luxury Resort Chain',
-    quote: 'Our guests expect perfection. YG Farms consistently delivers premium quality that exceeds even our highest standards.',
-    rating: 5,
-    image: 'https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=150&h=150&fit=crop&crop=face',
-    location: 'Nevada'
+    id: 5,
+    text: "We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.",
+    name: "Andrew Garfield",
+    role: "Cook"
+  },
+  {
+    id: 6,
+    text: "We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.",
+    name: "Andrew Garfield",
+    role: "Cook"
   }
 ];
 
-export default function Testimonials() {
+export default function TestimonialsCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const containerRef = useRef(null);
+  const autoPlayRef = useRef(null);
 
+  // Create extended array for infinite loop
+  const extendedTestimonials = [
+    ...testimonials.slice(-1), // Last item at the beginning
+    ...testimonials,
+    ...testimonials.slice(0, 1) // First item at the end
+  ];
+
+  // Auto-play functionality
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    const startAutoPlay = () => {
+      autoPlayRef.current = setInterval(() => {
+        nextSlide();
+      }, 4000);
+    };
 
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    startAutoPlay();
+
+    return () => {
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current);
+      }
+    };
+  }, []);
+
+  const resetAutoPlay = () => {
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current);
+    }
+    autoPlayRef.current = setInterval(() => {
+      nextSlide();
     }, 4000);
-
-    return () => clearInterval(interval);
-  }, [isAutoPlaying]);
-
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMousePosition({
-      x: (e.clientX - rect.left - rect.width / 2) / 20,
-      y: (e.clientY - rect.top - rect.height / 2) / 20
-    });
   };
 
-  const nextTestimonial = () => {
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    setIsAutoPlaying(false);
+  const nextSlide = () => {
+    if (isTransitioning) return;
+    
+    setIsTransitioning(true);
+    setCurrentIndex(prev => prev + 1);
+    
+    setTimeout(() => {
+      if (currentIndex + 1 > testimonials.length) {
+        setCurrentIndex(1);
+        if (containerRef.current) {
+          containerRef.current.style.transition = 'none';
+          containerRef.current.style.transform = `translateX(-${1 * (280 + 32)}px)`;
+          setTimeout(() => {
+            if (containerRef.current) {
+              containerRef.current.style.transition = 'transform 0.5s ease-in-out';
+            }
+          }, 50);
+        }
+      }
+      setIsTransitioning(false);
+    }, 500);
   };
 
-  const prevTestimonial = () => {
-    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-    setIsAutoPlaying(false);
+  const prevSlide = () => {
+    if (isTransitioning) return;
+    
+    setIsTransitioning(true);
+    setCurrentIndex(prev => prev - 1);
+    
+    setTimeout(() => {
+      if (currentIndex - 1 < 1) {
+        setCurrentIndex(testimonials.length);
+        if (containerRef.current) {
+          containerRef.current.style.transition = 'none';
+          containerRef.current.style.transform = `translateX(-${testimonials.length * (280 + 32)}px)`;
+          setTimeout(() => {
+            if (containerRef.current) {
+              containerRef.current.style.transition = 'transform 0.5s ease-in-out';
+            }
+          }, 50);
+        }
+      }
+      setIsTransitioning(false);
+    }, 500);
   };
 
   const goToSlide = (index) => {
-    setCurrentIndex(index);
-    setIsAutoPlaying(false);
+    if (isTransitioning) return;
+    setCurrentIndex(index + 1);
+    resetAutoPlay();
   };
 
   return (
-    <section className="relative py-24 px-4 overflow-hidden">
-      <div className="relative z-10 max-w-7xl mx-auto">
+    <section className="w-full py-16 bg-[#2A2A2A] overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: -50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          <span className="text-white text-sm font-semibold tracking-wider uppercase mb-2 block">
-            Testimonials
-          </span>
-          <h2 className="text-5xl md:text-6xl text-white mb-6 leading-tight">
-            Stories of <span className="text-white">Excellence</span>
+        <div className="text-center mb-12">
+          <h2 className="text-white text-4xl md:text-5xl lg:text-6xl font-light mb-8" 
+              style={{ fontFamily: 'serif' }}>
+            What our customers say.
           </h2>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Discover why industry leaders trust YG Farms for their premium needs
-          </p>
-        </motion.div>
-
-        {/* Main Testimonial Card */}
-        <div className="relative max-w-4xl mx-auto mb-12">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentIndex}
-              className="relative"
-              initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
-              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-              exit={{ opacity: 0, scale: 0.8, rotateY: 15 }}
-              transition={{ duration: 0.6 }}
-              onMouseMove={handleMouseMove}
-              style={{
-                transform: `perspective(1000px) rotateX(${mousePosition.y}deg) rotateY(${mousePosition.x}deg)`
-              }}
-            >
-              <div className="border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl hover:shadow-3xl transition-all duration-500">
-                <motion.div className="text-yellow-500 mb-8">
-                  <FaQuoteLeft size={48} />
-                </motion.div>
-
-                <p className="text-2xl md:text-3xl max-w-xl text-center mx-auto font-light text-white leading-relaxed mb-8">
-                  "{testimonials[currentIndex].quote}"
-                </p>
-
-                <motion.div
-                  className="flex items-center justify-center space-x-6"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                >
-                  <div className="text-center">
-                    <h4 className="text-xl font-semibold text-white">
-                      {testimonials[currentIndex].name}
-                    </h4>
-                    <p className="text-purple-300">
-                      {testimonials[currentIndex].role}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      {testimonials[currentIndex].company} • {testimonials[currentIndex].location}
-                    </p>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Navigation Arrows */}
-          <motion.button
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
-            whileHover={{ scale: 1.1, x: -5 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={prevTestimonial}
-          >
-            <FaChevronLeft />
-          </motion.button>
-
-          <motion.button
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
-            whileHover={{ scale: 1.1, x: 5 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={nextTestimonial}
-          >
-            <FaChevronRight />
-          </motion.button>
         </div>
 
-        {/* Mini Testimonial Cards */}
-        {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {testimonials.map((testimonial, index) => {
-            const isActive = index === currentIndex;
-            return (
-              <motion.div
-                key={index}
-                className={`cursor-pointer transition-all duration-300 p-6 rounded-2xl border 
-                  ${
-                    isActive 
-                      ? 'bg-white/10 border-purple-500 scale-105 shadow-lg' 
-                      : 'bg-white/5 border-white/10 hover:bg-white/10'
-                  }`}
-                whileHover={{ y: -6, scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => goToSlide(index)}
-              >
-                <div className="flex items-center space-x-4 mb-4">
-                  <img 
-                    src={testimonial.image} 
-                    alt={testimonial.name}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div>
-                    <h5 className="text-white font-semibold text-sm">
-                      {testimonial.name}
-                    </h5>
-                    <p className="text-purple-300 text-xs">
-                      {testimonial.role}
+        {/* Carousel Container */}
+        <div className="relative">
+          {/* Cards Container */}
+          <div className="overflow-hidden">
+            <div
+              ref={containerRef}
+              className="flex gap-8 transition-transform duration-500 ease-in-out"
+              style={{
+                transform: `translateX(-${currentIndex * (280 + 32)}px)`,
+                width: `${extendedTestimonials.length * (280 + 32)}px`
+              }}
+            >
+              {extendedTestimonials.map((testimonial, index) => (
+                <div
+                  key={`${testimonial.id}-${index}`}
+                  className="flex-shrink-0 bg-white rounded-[10px] p-6"
+                  style={{
+                    width: '280px',
+                    height: '240px'
+                  }}
+                >
+                  <div className="h-full flex flex-col justify-between">
+                    {/* Testimonial Text */}
+                    <p 
+                      className="text-[#333] mb-6"
+                      style={{
+                        fontFamily: 'Lexend Deca, sans-serif',
+                        fontWeight: 400,
+                        fontSize: '16px',
+                        lineHeight: '24px',
+                        letterSpacing: '0%'
+                      }}
+                    >
+                      {testimonial.text}
                     </p>
+                    
+                    {/* Author Info */}
+                    <div 
+                      className="flex flex-col gap-2"
+                      style={{
+                        width: '171px',
+                        height: '52px'
+                      }}
+                    >
+                      <h4 className="text-[#333] font-semibold text-lg">
+                        {testimonial.name}
+                      </h4>
+                      <p className="text-[#666] text-sm">
+                        {testimonial.role}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <p className="text-gray-300 text-sm line-clamp-3">
-                  "{testimonial.quote.substring(0, 100)}..."
-                </p>
-              </motion.div>
-            );
-          })}
-        </div> */}
+              ))}
+            </div>
+          </div>
+
+          {/* Navigation Arrows */}
+          <div className="flex justify-center gap-4 mt-8">
+            <button
+              onClick={() => { prevSlide(); resetAutoPlay(); }}
+              className="w-12 h-12 rounded-full border-2 border-white/30 text-white/70 hover:border-white hover:text-white transition-all duration-300 flex items-center justify-center group"
+              disabled={isTransitioning}
+            >
+              <ChevronLeft size={20} className="group-hover:scale-110 transition-transform" />
+            </button>
+            <button
+              onClick={() => { nextSlide(); resetAutoPlay(); }}
+              className="w-12 h-12 rounded-full border-2 border-white/30 text-white/70 hover:border-white hover:text-white transition-all duration-300 flex items-center justify-center group"
+              disabled={isTransitioning}
+            >
+              <ChevronRight size={20} className="group-hover:scale-110 transition-transform" />
+            </button>
+          </div>
+
+          {/* Dot Indicators */}
+          <div className="flex justify-center gap-2 mt-6">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  (currentIndex === index + 1) || 
+                  (currentIndex === 0 && index === testimonials.length - 1) ||
+                  (currentIndex === testimonials.length + 1 && index === 0)
+                    ? 'bg-white w-6' 
+                    : 'bg-white/40 hover:bg-white/60'
+                }`}
+                disabled={isTransitioning}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

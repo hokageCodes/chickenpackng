@@ -7,26 +7,34 @@ const steps = [
   {
     number: '01',
     title: 'Source',
-    headline: 'From Farm to Market',
-    text: 'We begin by sourcing the freshest ingredients directly from trusted local farms.',
-    image: '/assets/1.jpg',
-    button: 'See Our Farms',
+    headline: 'We Source From Local Farms',
+    text: 'We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.',
+    image: '/assets/01.jpg',
+    button: 'Build your pack',
   },
   {
     number: '02',
     title: 'Craft',
-    headline: 'Expertly Prepared',
-    text: 'Our skilled artisans transform these ingredients into mouthwatering products.',
-    image: '/assets/2.jpg',
-    button: 'Meet Our Chefs',
+    headline: 'You Choose What’s in Your Pack',
+    text: 'Customize your package for delivery with exactly what you want.',
+    image: '/assets/laps.jpg',
+    button: 'Build your pack',
   },
   {
     number: '03',
     title: 'Deliver',
-    headline: 'To Your Doorstep',
-    text: 'Seamless delivery ensures your favorites arrive fresh and fast.',
-    image: '/assets/3.jpg',
-    button: 'Track Delivery',
+    headline: 'Farms Pack & We Deliver',
+    text: 'Your Package is delivered right to your door in an insulated pack.',
+    image: '/assets/thanks.jpg',
+    button: 'Build your pack',
+  },
+  {
+    number: '04',
+    title: 'Deliver',
+    headline: 'You Enjoy',
+    text: 'Prepare your chicken however you’d like and enjoy it with friends and family.',
+    image: '/assets/enjoy.jpg',
+    button: 'Build your pack',
   },
 ]
 
@@ -53,12 +61,13 @@ const TextContent = ({ step }) => (
   <div className="relative space-y-6">
     <motion.div
       initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 0.07, y: 0 }}
+      animate={{ opacity: 0.1, y: 0 }} // <-- bumped opacity
       transition={{ duration: 0.6 }}
       className="absolute -top-12 left-0 text-9xl font-bold text-red-600 -translate-y-16 select-none z-0"
     >
       {step.number}
     </motion.div>
+
 
     <div className="relative z-10 flex items-center space-x-4 ml-16">
       <div className="h-0.5 w-16 bg-yellow-500" />

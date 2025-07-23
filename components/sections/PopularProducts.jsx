@@ -2,62 +2,55 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
-const PopularProducts = () => {
+const sections = [
+  {
+    id: 'combo',
+    title: 'Combo Pack',
+    bgImage: '/assets/ken.jpg',
+    verticalText: 'Combo Pack',
+  },
+  {
+    id: 'wings',
+    title: 'Wings',
+    bgImage: '/assets/wings.jpg',
+    verticalText: 'Wings',
+  },
+  {
+    id: 'laps',
+    title: 'Laps',
+    bgImage: '/assets/laps.jpg',
+    verticalText: 'Laps',
+  },
+];
+
+export default function PopularProducts() {
   const [activeSection, setActiveSection] = useState('combo');
 
-  const sections = [
-    {
-      id: 'combo',
-      title: 'Combo Pack',
-    //   subtitle: 'Best value chicken selection',
-      bgImage: 'bg-gradient-to-br from-amber-700 via-orange-600 to-red-700',
-      verticalText: 'Combo Pack'
-    },
-    {
-      id: 'wings',
-      title: 'Wings',
-    //   subtitle: 'Crispy chicken wings',
-      bgImage: 'bg-gradient-to-br from-yellow-600 via-amber-500 to-orange-600',
-      verticalText: 'Wings'
-    },
-    {
-      id: 'laps',
-      title: 'Laps',
-    //   subtitle: 'Tender chicken thighs',
-      bgImage: 'bg-gradient-to-br from-orange-400 via-yellow-400 to-amber-400',
-      verticalText: 'Laps'
-    }
-  ];
-
   return (
-    <div className="w-full min-h-screen bg-[#FEFBF6] relative">
-      <div className="max-w-[1440px] mx-auto px-[111px] py-20 flex flex-col lg:flex-row items-start gap-10">
-        {/* Left Content */}
-        <motion.div 
-          className="w-[475px] h-[452px] mt-[38px] flex flex-col gap-[52px]"
+    <section className="w-full py-10 px-2 sm:px-10 lg:px-[111px] overflow-hidden">
+      <div className="max-w-[1440px] mx-auto flex flex-col lg:flex-row items-start gap-10">
+        {/* LEFT TEXT + FORM */}
+        <motion.div
+          className="w-full lg:w-[475px] mt-4 flex flex-col gap-12"
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: 0.8 }}
         >
-          <div className="w-[415px] h-[300px] text-[#3D3C42] leading-[100px] tracking-[-0.02em]">
-            <h1 className="font-['Viaoda_Libre'] font-normal text-[96px]">
-              Our<br />
-              Popular<br />
-              Products
-            </h1>
-          </div>
+          <h1 className="text-white font-['Viaoda_Libre'] text-[48px] sm:text-[64px] md:text-[80px] lg:text-[96px] leading-[1.05] tracking-[-0.02em] w-full lg:w-[415px]">
+            Our<br />Popular<br />Products
+          </h1>
 
-          <div className="w-[475px] h-[100px] flex gap-2">
+          <div className="flex w-full flex-col sm:flex-row gap-4">
             <motion.input
               type="text"
               placeholder="SEARCH YOUR PRODUCTS"
-              className="w-[375px] h-[100px] bg-transparent border border-[#D0D5DD] rounded-lg text-[#3D3C42] px-5 text-base outline-none placeholder-[#D0D5DD] focus:border-[#3D3C42] transition-colors"
+              className="w-full sm:max-w-md px-4 py-3 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3D3C42]"
               whileFocus={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300 }}
             />
             <motion.button
-              className="w-[100px] h-[100px] bg-[#500D07] text-white font-bold rounded-lg hover:bg-[#6b1009] transition-colors"
+              className="h-[60px] sm:h-[100px] w-full sm:w-[100px] bg-[#500D07] text-white text-3xl rounded-lg hover:bg-[#3F2E3E] transition-all"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -66,12 +59,13 @@ const PopularProducts = () => {
           </div>
         </motion.div>
 
-        {/* Right Slider */}
-        <motion.div 
-          className="w-[832px] h-[500px] mt-[14px] flex gap-4 relative"
+        {/* RIGHT SECTION */}
+        {/* Desktop Version */}
+        <motion.div
+          className="hidden lg:flex w-full lg:w-[832px] h-[500px] mt-[14px] gap-4 overflow-hidden"
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
         >
           {sections.map((section) => {
             const isActive = activeSection === section.id;
@@ -79,43 +73,38 @@ const PopularProducts = () => {
             return (
               <motion.div
                 key={section.id}
-                className={`h-[500px] rounded-[10px] relative cursor-pointer overflow-hidden flex-shrink-0 transition-all duration-500 ease-in-out ${
-                  isActive ? section.bgImage : 'bg-[#FCFCFD]'
-                }`}
-                animate={{ width: isActive ? 500 : 150 }}
-                transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
                 onClick={() => setActiveSection(section.id)}
+                className={`relative rounded-[10px] overflow-hidden cursor-pointer transition-all duration-500 ease-in-out flex-shrink-0 ${
+                  isActive ? 'w-[500px]' : 'w-[150px]'
+                } h-[500px]`}
+                animate={{ width: isActive ? 500 : 150 }}
               >
-                {/* Background circles */}
-                {isActive && (
-                  <motion.div
-                    className="absolute inset-0 opacity-30"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.3 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <div className="absolute top-20 left-16 w-16 h-16 bg-yellow-200 rounded-full opacity-60"></div>
-                    <div className="absolute top-32 right-20 w-12 h-12 bg-orange-200 rounded-full opacity-60"></div>
-                    <div className="absolute bottom-32 left-20 w-20 h-20 bg-red-200 rounded-full opacity-60"></div>
-                    <div className="absolute bottom-20 right-16 w-14 h-14 bg-yellow-300 rounded-full opacity-60"></div>
-                  </motion.div>
-                )}
+                <Image
+                  src={section.bgImage}
+                  alt={section.title}
+                  fill
+                  className="object-cover"
+                  priority={isActive}
+                />
 
-                <AnimatePresence>
+                <div className="absolute inset-0"></div>
+
+                <AnimatePresence mode="wait">
                   {isActive ? (
                     <motion.div
-                      className="absolute bottom-[26px] left-[176px] w-[324px] h-[100px] bg-black/70 text-white rounded-lg flex flex-col gap-[10px] px-6 py-4"
+                      key="activeText"
+                      className="absolute bottom-[26px] left-[176px] w-[324px] h-[100px] bg-white text-[#280704] rounded-lg px-6 py-4 flex items-center"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
-                      transition={{ duration: 0.3, delay: 0.1 }}
+                      transition={{ duration: 0.3 }}
                     >
-                      <div className="text-2xl font-bold">{section.title}</div>
-                      <div className="text-base opacity-80">{section.subtitle}</div>
+                      <h3 className="text-3xl sm:text-5xl w-full text-center">{section.title}</h3>
                     </motion.div>
                   ) : (
                     <motion.div
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -rotate-90 text-2xl font-bold text-gray-700 whitespace-nowrap"
+                      key="verticalText"
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/70 w-[70px] p-2 -rotate-90 text-white font-bold text-lg sm:text-5xl whitespace-nowrap"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
@@ -129,9 +118,76 @@ const PopularProducts = () => {
             );
           })}
         </motion.div>
-      </div>
-    </div>
-  );
-};
 
-export default PopularProducts;
+        {/* Mobile Version - Horizontal Scroll */}
+        <div className="lg:hidden w-full">
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 px-2 -mx-2 snap-x snap-mandatory">
+            {sections.map((section, index) => (
+              <motion.div
+                key={section.id}
+                className="relative flex-shrink-0 w-[280px] h-[320px] rounded-[10px] overflow-hidden cursor-pointer snap-center"
+                onClick={() => setActiveSection(section.id)}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Image
+                  src={section.bgImage}
+                  alt={section.title}
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                
+                {/* Title Badge */}
+                <motion.div 
+                  className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white px-6 py-3 rounded-xl text-[#280704] font-bold text-lg shadow-lg"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  {section.title}
+                </motion.div>
+
+                {/* Active Indicator */}
+                {activeSection === section.id && (
+                  <motion.div
+                    className="absolute top-4 right-4 w-3 h-3 bg-white rounded-full shadow-lg"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  />
+                )}
+              </motion.div>
+            ))}
+          </div>
+          
+          {/* Optional: Scroll Indicator Dots */}
+          <div className="flex justify-center gap-2 mt-4">
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  activeSection === section.id 
+                    ? 'bg-white w-6' 
+                    : 'bg-white/40'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* CSS for hiding scrollbar */}
+      <style jsx>{`
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+    </section>
+  );
+}

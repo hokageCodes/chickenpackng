@@ -39,7 +39,7 @@ export const metadata = {
     siteName: 'Chicken Pack',
     images: [
       {
-        url: 'https://chickenpackng.vercel.app/assets/og-image.jpg',
+        url: 'https://chickenpackng.vercel.app/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'Chicken Pack grilled chicken',
@@ -51,7 +51,7 @@ export const metadata = {
     card: 'summary_large_image',
     site: '@chickenpackng',
     creator: '@chickenpackng',
-    images: ['https://chickenpackng.vercel.app/assets/og-image.jpg'],
+    images: ['https://chickenpackng.vercel.app/og-image.jpg'],
   },
   metadataBase: new URL('https://chickenpackng.vercel.app'),
   alternates: {
@@ -67,7 +67,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <Head>
-        <link rel="canonical" href="https://www.chickenpack.ng" />
+        <link rel="canonical" href="https://chickenpackng.vercel.app" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
@@ -78,9 +78,9 @@ export default function RootLayout({ children }) {
               "@context": "https://schema.org",
               "@type": "Restaurant",
               "name": "Chicken Pack",
-              "image": "https://chickenpack.ng/assets/og-image.jpg",
-              "logo": "https://chickenpack.ng/assets/logo.png",
-              "url": "https://www.chickenpack.ng",
+              "image": "https://chickenpackng.vercel.app/og-image.jpg",
+              "logo": "https://chickenpackng.vercel.app/assets/Logo.png",
+              "url": "https://chickenpackng.vercel.app",
               "telephone": "+2348123456789",
               "address": {
                 "@type": "PostalAddress",
@@ -88,8 +88,8 @@ export default function RootLayout({ children }) {
                 "addressCountry": "NG"
               },
               "priceRange": "$",
-              "servesCuisine": ["Nigerian", "Grilled Chicken", "Rice Meals", "Fast Food"],
-              "description": "Nigeria’s tastiest grilled chicken and meal pack service. Perfect for quick meals, office lunch delivery, and events."
+              "servesCuisine": ["Nigerian", "Raw Chicken", "Frozen Chicken", "Chicken"],
+              "description": "Food that matters - to me, to farmers and to the planet we all share."
             }
           `}
         </script>
