@@ -39,7 +39,7 @@ export const metadata = {
     siteName: 'Chicken Pack',
     images: [
       {
-        url: 'https://chickenpackng.vercel.app/og-image.jpg',
+        url: 'https://chickenpackng.vercel.app/assets/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Chicken Pack grilled chicken',
@@ -51,7 +51,7 @@ export const metadata = {
     card: 'summary_large_image',
     site: '@chickenpackng',
     creator: '@chickenpackng',
-    images: ['https://chickenpackng.vercel.app/og-image.jpg'],
+    images: ['https://chickenpackng.vercel.app/assets/og-image.png'],
   },
   metadataBase: new URL('https://chickenpackng.vercel.app'),
   alternates: {
@@ -78,7 +78,7 @@ export default function RootLayout({ children }) {
               "@context": "https://schema.org",
               "@type": "Restaurant",
               "name": "Chicken Pack",
-              "image": "https://chickenpackng.vercel.app/og-image.jpg",
+              "image": "https://chickenpackng.vercel.app/assets/og-image.png",
               "logo": "https://chickenpackng.vercel.app/assets/Logo.png",
               "url": "https://chickenpackng.vercel.app",
               "telephone": "+2348123456789",
