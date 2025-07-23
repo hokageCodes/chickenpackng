@@ -173,7 +173,7 @@ export default function Navbar() {
                 size={32} 
                 className={`absolute transition-all duration-300 ease-in-out transform ${
                   isOpen 
-                    ? 'rotate-0 scale-100 opacity-100' 
+                    ? 'rotate-0 scale-100 opacity-100 text-white' 
                     : '-rotate-90 scale-0 opacity-0'
                 }`}
               />
@@ -184,7 +184,7 @@ export default function Navbar() {
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 z-[60] bg-white transition-all duration-300 ease-out flex flex-col md:hidden ${
+        className={`fixed inset-0 z-[60] bg-[#191919] transition-all duration-300 ease-out flex flex-col md:hidden ${
           isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
         }`}
         onClick={closeMenu} // Close when clicking overlay background
@@ -228,7 +228,7 @@ export default function Navbar() {
                 key={item.href}
                 href={item.href}
                 onClick={closeMenu}
-                className={`text-2xl text-[#3D3C42] font-medium hover:text-[#7F5283] transition-all duration-300 transform hover:scale-105 ${
+                className={`text-2xl text-white font-medium hover:text-[#7F5283] transition-all duration-300 transform hover:scale-105 ${
                   isOpen ? 'animate-fade-in-up' : ''
                 }`}
                 style={{ animationDelay: `${index * 100}ms` }}
@@ -240,7 +240,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={closeMenu}
-              className={`mt-8 self-center inline-flex items-center justify-center gap-2 border border-[#7F5283] text-[#7F5283] px-8 py-4 rounded-full font-medium hover:bg-[#7F5283] hover:text-white transition-all duration-300 hover:scale-105 ${
+              className={`mt-8 self-center inline-flex items-center justify-center gap-2 border border-[#7F5283] text-[#fff] px-8 py-4 rounded-full font-medium hover:bg-[#7F5283] hover:text-white transition-all duration-300 hover:scale-105 ${
                 isOpen ? 'animate-fade-in-up' : ''
               }`}
               style={{ animationDelay: `${navLinks.length * 100}ms` }}

@@ -6,12 +6,13 @@ import ProcessSection from "@/components/sections/OurProcessSection";
 import Testimonials from "@/components/sections/TestimonialsSection";
 import FAQ from "@/components/sections/FAQSection";
 import GallerySection from "@/components/sections/GallerySection";
+import PopularProducts from "@/components/sections/PopularProducts";
 
 export default function Home() {
   return (
     <>
       <HeroSection />
-      <ProductSection />
+      <PopularProducts />
       <ProcessSection />
       <Testimonials />
       <FAQ />
