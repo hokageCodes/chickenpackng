@@ -42,7 +42,7 @@ const testimonials = [
 ];
 
 export default function TestimonialsCarousel() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const containerRef = useRef(null);
   const autoPlayRef = useRef(null);
@@ -53,6 +53,33 @@ export default function TestimonialsCarousel() {
     ...testimonials,
     ...testimonials.slice(0, 1) // First item at the end
   ];
+
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+  
+    const width = 280 + 32;
+    containerRef.current.style.transition = 'transform 0.5s ease-in-out';
+    containerRef.current.style.transform = `translateX(-${currentIndex * width}px)`;
+  
+    let timeoutId;
+  
+    // After transition ends, jump without animation if we hit cloned slides
+    if (currentIndex === 0) {
+      timeoutId = setTimeout(() => {
+        containerRef.current.style.transition = 'none';
+        setCurrentIndex(testimonials.length); // real last slide
+      }, 500);
+    } else if (currentIndex === testimonials.length + 1) {
+      timeoutId = setTimeout(() => {
+        containerRef.current.style.transition = 'none';
+        setCurrentIndex(1); // real first slide
+      }, 500);
+    }
+  
+    return () => clearTimeout(timeoutId);
+  }, [currentIndex]);
+  
 
   // Auto-play functionality
   useEffect(() => {

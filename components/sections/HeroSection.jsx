@@ -80,7 +80,7 @@ const HeroSection = () => {
           </motion.div>
 
           {/* Heading */}
-          <motion.h1
+          <h1
             className="text-white text-4xl sm:text-8xl leading-tight max-w-full text-center sm:text-left"
             variants={itemVariants}
             style={{
@@ -91,10 +91,10 @@ const HeroSection = () => {
             }}
           >
             Fresh, Safe Quality, Tender Chickens
-          </motion.h1>
+          </h1>
 
           {/* Subtext */}
-          <motion.p
+          <p
             className="text-center sm:text-left px-2 sm:px-0"
             variants={itemVariants}
             style={{
@@ -106,7 +106,7 @@ const HeroSection = () => {
             }}
           >
             Food that matters - to me, to farmers and to the planet we all share.
-          </motion.p>
+          </p>
 
           {/* CTA Buttons */}
           <motion.div

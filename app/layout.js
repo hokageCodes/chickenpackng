@@ -2,6 +2,7 @@ import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import Head from 'next/head';
+import CartProviderWrapper from '@/components/CartProvider';
 
 export const metadata = {
   title: 'Chicken Pack | Food that matters - to me, to farmers and to the planet we all share.',
@@ -67,53 +68,62 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <Head>
-        <link rel="canonical" href="https://chickenpackng.vercel.app" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/site.webmanifest" />
+      <link rel="canonical" href="https://chickenpackng.vercel.app" />
+      <link rel="icon" href="/favicon.ico" />
+      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      <link rel="manifest" href="/site.webmanifest" />
 
-        <script type="application/ld+json">
-          {`
-            {
-              "@context": "https://schema.org",
-              "@type": "Restaurant",
-              "name": "Chicken Pack",
-              "image": "https://chickenpackng.vercel.app/assets/og-image.png",
-              "logo": "https://chickenpackng.vercel.app/assets/Logo.png",
-              "url": "https://chickenpackng.vercel.app",
-              "telephone": "+2348123456789",
-              "address": {
-                "@type": "PostalAddress",
-                "addressLocality": "Lagos",
-                "addressCountry": "NG"
-              },
-              "priceRange": "$",
-              "servesCuisine": ["Nigerian", "Raw Chicken", "Frozen Chicken", "Chicken"],
-              "description": "Food that matters - to me, to farmers and to the planet we all share."
-            }
-          `}
-        </script>
+      <script type="application/ld+json">
+        {`
+          {
+            "@context": "https://schema.org",
+            "@type": "Restaurant",
+            "name": "Chicken Pack",
+            "image": "https://chickenpackng.vercel.app/assets/og-image.png",
+            "logo": "https://chickenpackng.vercel.app/assets/Logo.png",
+            "url": "https://chickenpackng.vercel.app",
+            "telephone": "+2348123456789",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Lagos",
+              "addressCountry": "NG"
+            },
+            "priceRange": "$",
+            "servesCuisine": ["Nigerian", "Raw Chicken", "Frozen Chicken", "Chicken"],
+            "description": "Food that matters - to me, to farmers and to the planet we all share."
+          }
+        `}
+      </script>
 
-        <link
-          rel="preload"
-          href="/assets/fonts/Satoshi-Regular.otf"
-          as="font"
-          type="font/otf"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/assets/fonts/Satoshi-Bold.otf"
-          as="font"
-          type="font/otf"
-          crossOrigin="anonymous"
-        />
+      <link
+        rel="preload"
+        href="/assets/fonts/Satoshi-Regular.otf"
+        as="font"
+        type="font/otf"
+        crossOrigin="anonymous"
+      />
+      <link
+        rel="preload"
+        href="/assets/fonts/Satoshi-Bold.otf"
+        as="font"
+        type="font/otf"
+        crossOrigin="anonymous"
+      />
       </Head>
       <body className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-grow">{children}</main>
-        <Footer />
+        <CartProviderWrapper>
+          <Navbar />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </CartProviderWrapper>
       </body>
     </html>
   );
 }
+
+
+
+
+
+
+

@@ -1,102 +1,53 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Menu, X, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import { FaEnvelope } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import { useCart } from '../../contexts/CartContext';
+import { products } from '@/data/products';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+
+  // Use global cart context
+  const { cart, cartCount, removeFromCart } = useCart();
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/products', label: 'Products' },
     { href: '/company', label: 'Company' },
+    { href: '/cart', label: 'Cart' }, // Desktop only
   ];
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
+  const toggleMenu = () => setIsOpen(!isOpen);
+  const closeMenu = () => setIsOpen(false);
+  const toggleCartModal = () => setIsCartModalOpen(!isCartModalOpen);
+  const closeCartModal = () => setIsCartModalOpen(false);
 
-    // Close mobile menu on window resize (desktop/mobile switch)
-    const handleResize = () => {
-      if (window.innerWidth >= 768) { // md breakpoint
-        setIsOpen(false);
-      }
-    };
+  // Calculate cart total
+  const cartTotal = Object.entries(cart).reduce((total, [key, item]) => {
+    const prod = products.find((p) => p.id === item.productId);
+    const size = prod?.sizes.find((s) => s.label === item.size);
+    return total + (size?.price || 0) * item.quantity;
+  }, 0);
 
-    // Close mobile menu on escape key
-    const handleEscape = (e) => {
-      if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('keydown', handleEscape);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen]);
-
-  // Prevent body scroll when mobile menu is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
-
-  // Toggle mobile menu
-  const toggleMenu = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsOpen(prev => !prev);
-  };
-
-  // Close mobile menu
-  const closeMenu = () => {
-    setIsOpen(false);
-  };
-
-  // Unified Logo Component
-  const Logo = ({ onClick, isMobile = false }) => (
-    <Link 
-      href="/" 
-      className="flex items-center gap-3 sm:gap-4 group" 
-      onClick={onClick}
-    >
-      <div className={`relative transition-transform duration-300 group-hover:scale-105 ${
-        isMobile ? 'h-14 w-14' : 'h-12 w-12 sm:h-16 sm:w-16'
-      }`}>
-        <Image
-          src="/assets/Logo.png"
-          alt="Chicken-Pack"
-          fill
-          sizes="(max-width: 768px) 56px, 64px"
-          className="object-contain"
-          priority
-        />
+  const Logo = () => (
+    <Link href="/" className="flex items-center gap-3 group">
+      <div className="relative h-12 w-12 sm:h-16 sm:w-16 transition-transform group-hover:scale-105">
+        <Image src="/assets/Logo.png" alt="Chicken-Pack" fill className="object-contain" />
       </div>
-      <span className={`font-bold leading-tight transition-all duration-300 ${
-        scrolled 
-          ? 'text-[#3D3C42] group-hover:text-[#7F5283]' 
-          : 'text-white group-hover:text-white/90'
-      } ${
-        isMobile ? 'text-xl' : 'text-xl sm:text-2xl lg:text-3xl'
+      <span className={`font-bold text-xl sm:text-2xl lg:text-3xl ${
+        scrolled ? 'text-[#3D3C42]' : 'text-white'
       }`}>
         Chicken Pack
       </span>
@@ -105,173 +56,177 @@ export default function Navbar() {
 
   return (
     <>
-      <header
-        className={`fixed h-[12vh] top-0 left-0 w-full z-50 transition-all duration-500 ease-out ${
-          scrolled 
-            ? 'backdrop-blur-lg bg-white/90 shadow-xl' 
-            : 'bg-transparent'
-        }`}
-      >
-        <div className="max-w-[1440px] mx-auto sm:px-[80px] py-4 sm:py-4 flex items-center justify-between">
-          {/* Logo - Only show when mobile menu is closed */}
-          <div className={`transition-opacity duration-300 ${isOpen ? 'md:opacity-100 opacity-0' : 'opacity-100'}`}>
-            <Logo onClick={closeMenu} />
+      <header className={`fixed h-[12vh] top-0 left-0 w-full z-50 transition-all duration-500 ${
+        scrolled ? 'bg-white/90 backdrop-blur-md shadow' : 'bg-transparent'
+      }`}>
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-[80px] py-4 flex items-center justify-between">
+          <Logo />
+
+          {/* Mobile: Cart Modal Button + Hamburger */}
+          <div className="md:hidden flex items-center gap-2 relative">
+            <button 
+              onClick={toggleCartModal}
+              className={`p-2 rounded-full ${scrolled ? 'text-[#3D3C42]' : 'text-white'} relative`}
+            >
+              <ShoppingCart size={24} />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
+            <button onClick={toggleMenu} className={`p-2 rounded-full ${scrolled ? 'text-[#3D3C42]' : 'text-white'}`}>
+              {isOpen ? <X size={30} /> : <Menu size={30} />}
+            </button>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-10 lg:gap-12">
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-10">
+            {navLinks.map((item) => (
+              <Link key={item.href} href={item.href} className={`font-semibold text-lg ${
+                scrolled ? 'text-gray-800' : 'text-white'
+              } hover:text-[#7F5283] ${item.href === '/cart' ? 'relative' : ''}`}>
+                {item.label}
+                {item.href === '/cart' && cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            ))}
+
+            <button className="ml-6 flex items-center gap-2 bg-[#500D07] text-white px-4 py-3 rounded-full text-lg font-semibold hover:bg-[#7F5283] transition">
+              <FaEnvelope />
+              Send A Message
+            </button>
+          </nav>
+        </div>
+      </header>
+
+      {/* Mobile Nav Menu */}
+      {isOpen && (
+        <div className="fixed inset-0 z-40 bg-[#191919] flex flex-col md:hidden transition-all pt-[12vh]">
+          <div className="flex flex-col items-center gap-6 py-10">
             {navLinks.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`text-lg lg:text-xl font-semibold transition-all duration-300 hover:scale-105 relative group ${
-                  scrolled 
-                    ? 'text-gray-700 hover:text-[#7F5283]' 
-                    : 'text-white hover:text-white/90'
-                }`}
+                onClick={closeMenu}
+                className="text-white text-xl relative"
               >
                 {item.label}
-                <span className={`absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${
-                  scrolled ? 'bg-[#7F5283]' : 'bg-white'
-                }`}></span>
+                {item.href === '/cart' && cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
             ))}
 
-            <button
-              type="button"
-              className="ml-6 flex items-center gap-3 bg-[#500D07] text-white px-4 py-3 lg:px-4 lg:py-2 rounded-full font-semibold text-lg lg:text-lg hover:bg-[#7F5283] hover:shadow-xl transition-all duration-300 hover:scale-105 transform"
-              style={{ color: 'white' }}
-            >
-              <FaEnvelope size={20} className="text-white" />
+            <button className="flex items-center gap-2 border border-[#7F5283] text-white px-6 py-3 rounded-full hover:bg-[#7F5283]">
+              <FaEnvelope />
               Send A Message
             </button>
-          </nav>
-
-          {/* Mobile Menu Toggle - Fixed Toggle Logic */}
-          <button
-            onClick={toggleMenu}
-            className={`md:hidden p-4 rounded-full transition-all duration-300 hover:scale-110 transform relative overflow-hidden ${
-              scrolled 
-                ? 'text-[#7F5283] hover:bg-[#7F5283]/10' 
-                : 'text-white hover:bg-white/10'
-            }`}
-            aria-expanded aria-label={isOpen ? "Close menu" : "Open menu"}
-            type="button"
-          >
-            <div className="relative w-9 h-9 flex items-center justify-center">
-              {/* Hamburger Icon */}
-              <Menu 
-                size={36} 
-                className={`absolute transition-all duration-300 ease-in-out transform ${
-                  isOpen 
-                    ? 'rotate-90 scale-0 opacity-0' 
-                    : 'rotate-0 scale-100 opacity-100'
-                }`}
-              />
-              {/* X Icon */}
-              <X 
-                size={32} 
-                className={`absolute transition-all duration-300 ease-in-out transform ${
-                  isOpen 
-                    ? 'rotate-0 scale-100 opacity-100 text-white' 
-                    : '-rotate-90 scale-0 opacity-0'
-                }`}
-              />
-            </div>
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile Menu Overlay */}
-      <div
-        className={`fixed inset-0 z-[60] bg-[#191919] transition-all duration-300 ease-out flex flex-col md:hidden ${
-          isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
-        }`}
-        onClick={closeMenu} // Close when clicking overlay background
-      >
-        {/* Mobile Menu Header with Logo */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          {/* Logo in mobile menu */}
-          <div className="flex items-center gap-3">
-            <div className="relative h-12 w-12">
-              <Image
-                src="/assets/Logo.png"
-                alt="Chicken-Pack"
-                fill
-                sizes="48px"
-                className="object-contain"
-              />
-            </div>
-            <span className="text-xl font-bold text-[#3D3C42]">
-              Chicken Pack
-            </span>
           </div>
-          
-          <button
-            onClick={closeMenu}
-            className="text-[#7F5283] p-2 rounded-full hover:bg-[#7F5283]/10 transition-all duration-300"
-            aria-label="Close menu"
-            type="button"
-          >
-            <X size={24} />
-          </button>
         </div>
+      )}
 
-        {/* Mobile Menu Content */}
-        <div 
-          className="flex-1 flex flex-col"
-          onClick={(e) => e.stopPropagation()} // Prevent closing when clicking menu content
-        >
-          <nav className="flex flex-col justify-center flex-1 space-y-8 text-center px-6">
-            {navLinks.map((item, index) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={closeMenu}
-                className={`text-2xl text-white font-medium hover:text-[#7F5283] transition-all duration-300 transform hover:scale-105 ${
-                  isOpen ? 'animate-fade-in-up' : ''
-                }`}
-                style={{ animationDelay: `${index * 100}ms` }}
+      {/* Mobile Cart Modal - MOBILE ONLY */}
+      {isCartModalOpen && (
+        <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center px-4 md:hidden">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-white text-black max-w-sm w-full rounded-lg overflow-hidden shadow-2xl max-h-[80vh]"
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center px-4 py-3 border-b bg-gray-50">
+              <h2 className="text-lg font-bold">Your Cart ({cartCount} items)</h2>
+              <button 
+                onClick={closeCartModal} 
+                className="text-gray-500 hover:text-black transition-colors p-1"
               >
-                {item.label}
-              </Link>
-            ))}
+                <X size={20} />
+              </button>
+            </div>
 
-            <button
-              type="button"
-              onClick={closeMenu}
-              className={`mt-8 self-center inline-flex items-center justify-center gap-2 border border-[#7F5283] text-[#fff] px-8 py-4 rounded-full font-medium hover:bg-[#7F5283] hover:text-white transition-all duration-300 hover:scale-105 ${
-                isOpen ? 'animate-fade-in-up' : ''
-              }`}
-              style={{ animationDelay: `${navLinks.length * 100}ms` }}
-            >
-                <FaEnvelope size={20} className="text-white" />
-                Send A Message
-            </button>
-          </nav>
+            {/* Cart Items */}
+            <div className="max-h-[50vh] overflow-y-auto">
+              {Object.keys(cart).length === 0 ? (
+                <div className="px-4 py-8 text-center text-gray-500">
+                  <ShoppingCart size={40} className="mx-auto mb-3 text-gray-300" />
+                  <p className="text-sm">Your cart is empty</p>
+                </div>
+              ) : (
+                Object.entries(cart).map(([key, item]) => {
+                  const prod = products.find((p) => p.id === item.productId);
+                  const size = prod?.sizes.find((s) => s.label === item.size);
+                  
+                  if (!prod || !size) return null;
+                  
+                  return (
+                    <div key={key} className="flex items-center gap-3 px-4 py-3 border-b hover:bg-gray-50">
+                      <div className="w-12 h-12 relative flex-shrink-0">
+                        <Image
+                          src={prod.image}
+                          alt={prod.name}
+                          fill
+                          className="rounded object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{prod.name}</p>
+                        <p className="text-xs text-gray-500">
+                          {item.size} × {item.quantity}
+                        </p>
+                        <p className="text-sm font-bold text-green-600">
+                          ₦{(size.price * item.quantity).toLocaleString()}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => removeFromCart(key)}
+                        className="text-red-500 hover:text-red-700 text-xs font-medium transition-colors px-2 py-1 rounded hover:bg-red-50"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  );
+                })
+              )}
+            </div>
 
-          <div className="text-center text-sm text-gray-400 pb-6 mt-auto">
-            © 2025 Chicken Pack
-          </div>
+            {/* Footer */}
+            {Object.keys(cart).length > 0 && (
+              <div className="px-4 py-3 border-t bg-gray-50">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="font-medium">Total:</span>
+                  <span className="text-lg font-bold text-green-600">
+                    ₦{cartTotal.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={closeCartModal}
+                    className="flex-1 bg-gray-200 text-gray-800 py-2 rounded-md hover:bg-gray-300 transition font-medium text-sm"
+                  >
+                    <a href="/products">Continue Shopping</a>
+                  </button>
+                  <Link 
+                    legacyBehavior
+                    href="/cart"
+                    onClick={closeCartModal}
+                    className="flex-1 bg-[#500D07] text-white py-2 rounded-md hover:bg-[#7F5283] transition font-bold text-center text-sm"
+                  >
+                    <a href="/cart">View Cart</a>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </motion.div>
         </div>
-      </div>
-
-      <style jsx>{`
-        @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fade-in-up {
-          animation: fade-in-up 0.6s ease-out forwards;
-        }
-      `}</style>
+      )}
     </>
   );
 }
