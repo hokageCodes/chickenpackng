@@ -9,13 +9,14 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   // ── Owner account ─────────────────────────────────────────
   const email = process.env.OWNER_EMAIL ?? "owner@sinumagro.com";
+  const name = process.env.OWNER_NAME ?? "Sinum Agro Owner";
   const password = process.env.OWNER_PASSWORD ?? "changeme123";
   const passwordHash = bcrypt.hashSync(password, 10);
 
   const owner = await prisma.user.upsert({
     where: { email },
-    update: {},
-    create: { name: "Sinum Agro Owner", email, passwordHash, role: "OWNER" },
+    update: { name },
+    create: { name, email, passwordHash, role: "OWNER" },
   });
   const createdById = owner.id;
   console.log(`✓ Owner: ${email}`);

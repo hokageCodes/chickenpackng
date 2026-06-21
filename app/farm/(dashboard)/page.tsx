@@ -1,6 +1,30 @@
 import { prisma } from "@/lib/db";
+import { auth } from "@/auth";
 
 export const dynamic = "force-dynamic";
+
+// Greeting + date computed in the farm's local timezone (Lagos), regardless of
+// where the server runs.
+function greetingAndDate() {
+  const now = new Date();
+  const hour = Number(
+    new Intl.DateTimeFormat("en-NG", {
+      timeZone: "Africa/Lagos",
+      hour: "2-digit",
+      hourCycle: "h23",
+    }).format(now)
+  );
+  const greeting =
+    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const date = new Intl.DateTimeFormat("en-NG", {
+    timeZone: "Africa/Lagos",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(now);
+  return { greeting, date };
+}
 
 function daysAgo(n: number) {
   const d = new Date();
@@ -91,13 +115,18 @@ function Card({
 }
 
 export default async function FarmDashboard() {
-  const d = await getDashboard();
+  const [d, session] = await Promise.all([getDashboard(), auth()]);
+  const { greeting, date } = greetingAndDate();
+  const firstName = session?.user?.name?.split(" ")[0];
 
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-sm text-neutral-500">Today at Sinum Agro</p>
+        <h1 className="text-2xl font-bold">
+          {greeting}
+          {firstName ? `, ${firstName}` : ""}
+        </h1>
+        <p className="text-sm text-muted-foreground">{date} at Sinum Agro</p>
       </header>
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
