@@ -4,39 +4,40 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Bird,
-  Fish,
-  Wheat,
-  Pill,
-  Skull,
-  PackageOpen,
-  Wallet,
+  ShoppingCart,
+  Package,
+  Users,
+  CreditCard,
+  Truck,
+  Percent,
+  Star,
   BarChart3,
-  ShoppingBag,
+  Settings,
+  Sprout,
   type LucideIcon,
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: LucideIcon; ready: boolean };
 
 const NAV: NavItem[] = [
-  { href: "/farm", label: "Dashboard", icon: LayoutDashboard, ready: true },
-  { href: "/farm/poultry", label: "Poultry", icon: Bird, ready: true },
-  { href: "/farm/fish", label: "Fish", icon: Fish, ready: true },
-  { href: "/farm/feed", label: "Feed", icon: Wheat, ready: true },
-  { href: "/farm/medication", label: "Medication", icon: Pill, ready: true },
-  { href: "/farm/mortality", label: "Mortality", icon: Skull, ready: true },
-  { href: "/farm/harvest", label: "Harvest", icon: PackageOpen, ready: true },
-  { href: "/farm/finance", label: "Finance", icon: Wallet, ready: true },
-  { href: "/farm/analytics", label: "Analytics", icon: BarChart3, ready: true },
-  { href: "/admin", label: "Commerce Admin", icon: ShoppingBag, ready: true },
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, ready: true },
+  { href: "/admin/orders", label: "Orders", icon: ShoppingCart, ready: false },
+  { href: "/admin/products", label: "Products", icon: Package, ready: false },
+  { href: "/admin/customers", label: "Customers", icon: Users, ready: false },
+  { href: "/admin/payments", label: "Payments", icon: CreditCard, ready: false },
+  { href: "/admin/delivery", label: "Delivery", icon: Truck, ready: false },
+  { href: "/admin/discounts", label: "Discounts", icon: Percent, ready: false },
+  { href: "/admin/reviews", label: "Reviews", icon: Star, ready: false },
+  { href: "/admin/reports", label: "Reports", icon: BarChart3, ready: false },
+  { href: "/admin/settings", label: "Settings", icon: Settings, ready: false },
 ];
 
 function isActive(pathname: string, href: string) {
-  if (href === "/farm") return pathname === "/farm";
+  if (href === "/admin") return pathname === "/admin";
   return pathname === href || pathname.startsWith(href + "/");
 }
 
-export default function SidebarNav() {
+export default function AdminSidebarNav() {
   const pathname = usePathname() ?? "";
 
   return (
@@ -83,6 +84,15 @@ export default function SidebarNav() {
           </Link>
         );
       })}
+
+      {/* Cross-link to FarmOS */}
+      <Link
+        href="/farm"
+        className="mt-2 flex items-center gap-3 rounded-lg border-t border-border px-3 pb-2 pt-4 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
+      >
+        <Sprout size={20} strokeWidth={1.9} className="shrink-0" />
+        <span className="flex-1">Sinum Agro FarmOS</span>
+      </Link>
     </nav>
   );
 }
