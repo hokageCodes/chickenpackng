@@ -1,5 +1,6 @@
+import { Wheat } from "lucide-react";
 import { prisma } from "@/lib/db";
-import FeedForms, { type TargetOption } from "./FeedForms";
+import FeedEntries, { type TargetOption, type Entry } from "./FeedEntries";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +14,8 @@ async function getData() {
     prisma.feedStock.findMany({ orderBy: { category: "asc" } }),
     prisma.animalGroup.findMany({ where: { status: { not: "CLOSED" } }, orderBy: { label: "asc" } }),
     prisma.pond.findMany({ orderBy: { label: "asc" } }),
-    prisma.feedUsage.findMany({ orderBy: { date: "desc" }, take: 15, include: { group: true, pond: true } }),
-    prisma.feedPurchase.findMany({ orderBy: { date: "desc" }, take: 15 }),
+    prisma.feedUsage.findMany({ orderBy: { date: "desc" }, take: 60, include: { group: true, pond: true } }),
+    prisma.feedPurchase.findMany({ orderBy: { date: "desc" }, take: 60 }),
   ]);
 
   const targets: TargetOption[] = [
@@ -22,102 +23,102 @@ async function getData() {
     ...ponds.map((p) => ({ value: `pond:${p.id}`, label: p.label })),
   ];
 
-  type Row = { id: string; date: Date; kind: "Used" | "Bought"; category: string; bags: number; detail: string };
-  const activity: Row[] = [
+  const isoDate = (dt: Date) => new Date(dt).toISOString().slice(0, 10);
+  const entries: Entry[] = [
     ...usage.map((u) => ({
       id: u.id,
-      date: u.date,
-      kind: "Used" as const,
+      kind: "usage" as const,
       category: u.category,
       bags: u.bags,
+      date: isoDate(u.date),
+      dateLabel: fmtDate(u.date),
       detail: u.group?.label ?? u.pond?.label ?? "—",
+      target: u.groupId ? `group:${u.groupId}` : u.pondId ? `pond:${u.pondId}` : "",
+      vendor: "",
+      costNGN: 0,
+      _ts: new Date(u.date).getTime(),
     })),
     ...purchases.map((p) => ({
       id: p.id,
-      date: p.date,
-      kind: "Bought" as const,
+      kind: "purchase" as const,
       category: p.category,
       bags: p.bags,
+      date: isoDate(p.date),
+      dateLabel: fmtDate(p.date),
       detail: p.vendor ? `${p.vendor} · ${naira(Number(p.costNGN))}` : naira(Number(p.costNGN)),
+      target: "",
+      vendor: p.vendor ?? "",
+      costNGN: Number(p.costNGN),
+      _ts: new Date(p.date).getTime(),
     })),
   ]
-    .sort((a, b) => b.date.getTime() - a.date.getTime())
-    .slice(0, 20);
+    .sort((a, b) => b._ts - a._ts)
+    .slice(0, 60)
+    .map(({ _ts, ...e }) => e);
 
-  return { stocks, targets, activity };
+  return { stocks, targets, entries };
 }
 
 export default async function FeedPage() {
-  const { stocks, targets, activity } = await getData();
+  const { stocks, targets, entries } = await getData();
 
   return (
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold">Feed</h1>
-        <p className="text-sm text-neutral-500">Track daily usage and purchases</p>
+        <p className="text-sm text-muted-foreground">Track daily usage and purchases</p>
       </header>
 
-      <section className="grid grid-cols-3 gap-4">
-        {stocks.map((s) => {
-          const low = s.bags <= s.lowThreshold;
-          return (
-            <div key={s.category} className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <p className="text-xs uppercase text-neutral-500">{title(s.category)}</p>
-              <p className="mt-1 text-2xl font-bold">
-                {s.bags} <span className="text-sm font-normal text-neutral-500">bags</span>
-              </p>
-              {low && <span className="text-xs font-medium text-red-600">Low stock</span>}
-            </div>
-          );
-        })}
+      <section>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+          {stocks.map((s) => {
+            const cap = s.capacityBags > 0 ? s.capacityBags : s.bags;
+            const pct = cap > 0 ? (s.bags / cap) * 100 : 0;
+            const chip =
+              s.category === "BROILER"
+                ? "bg-primary/10 text-primary"
+                : s.category === "LAYER"
+                  ? "bg-gold/20 text-gold-foreground"
+                  : "bg-sky-100 text-sky-600";
+            const tone =
+              pct > 50
+                ? "bg-green-50 text-green-700"
+                : pct > 25
+                  ? "bg-amber-50 text-amber-700"
+                  : "bg-red-50 text-red-600";
+            return (
+              <div
+                key={s.category}
+                className="flex flex-col rounded-2xl border border-border bg-card p-4 sm:p-5"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-3xl font-extrabold leading-none tracking-tight sm:text-4xl">
+                      {s.bags}
+                    </p>
+                    <p className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground sm:text-xs">
+                      {title(s.category)} feed
+                    </p>
+                  </div>
+                  <span
+                    className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl sm:h-12 sm:w-12 ${chip}`}
+                  >
+                    <Wheat size={22} />
+                  </span>
+                </div>
+                <div
+                  className={`mt-3 flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-semibold sm:mt-4 sm:gap-2 sm:px-3 sm:text-xs ${tone}`}
+                >
+                  <span className="truncate">{Math.round(pct)}% left</span>
+                  <span className="ml-auto shrink-0">of {cap} bags</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </section>
 
-      <FeedForms targets={targets} />
-
-      <section className="rounded-2xl border border-neutral-200 bg-white">
-        <h2 className="border-b border-neutral-100 px-5 py-3 text-sm font-semibold text-neutral-700">
-          Recent activity
-        </h2>
-        {activity.length === 0 ? (
-          <p className="px-5 py-6 text-sm text-neutral-500">No feed activity yet.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="text-xs uppercase text-neutral-500">
-                <tr className="border-b border-neutral-100">
-                  <th className="px-5 py-2 font-medium">Date</th>
-                  <th className="px-5 py-2 font-medium">Action</th>
-                  <th className="px-5 py-2 font-medium">Feed</th>
-                  <th className="px-5 py-2 font-medium">Bags</th>
-                  <th className="px-5 py-2 font-medium">Detail</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activity.map((r) => (
-                  <tr key={`${r.kind}-${r.id}`} className="border-b border-neutral-50 last:border-0">
-                    <td className="px-5 py-2.5 text-neutral-600">{fmtDate(r.date)}</td>
-                    <td className="px-5 py-2.5">
-                      <span
-                        className={
-                          "rounded px-1.5 py-0.5 text-xs font-medium " +
-                          (r.kind === "Bought"
-                            ? "bg-green-50 text-green-700"
-                            : "bg-neutral-100 text-neutral-700")
-                        }
-                      >
-                        {r.kind}
-                      </span>
-                    </td>
-                    <td className="px-5 py-2.5 text-neutral-600">{title(r.category)}</td>
-                    <td className="px-5 py-2.5 font-medium">{r.bags}</td>
-                    <td className="px-5 py-2.5 text-neutral-600">{r.detail}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      <FeedEntries entries={entries} targets={targets} />
     </div>
   );
 }
