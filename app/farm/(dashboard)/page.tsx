@@ -144,10 +144,12 @@ function FeedStrip({ feed }: { feed: FeedInfo }) {
         ? "bg-amber-50 text-amber-700"
         : "bg-red-50 text-red-600";
   return (
-    <div className={`mt-4 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${tone}`}>
-      <Wheat size={14} />
-      <span>{feed.bags} bags feed left</span>
-      <span className="ml-auto">{Math.round(feed.pct)}%</span>
+    <div
+      className={`mt-3 flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-semibold sm:mt-4 sm:gap-2 sm:px-3 sm:text-xs ${tone}`}
+    >
+      <Wheat size={13} className="shrink-0" />
+      <span className="truncate">{feed.bags} bags left</span>
+      <span className="ml-auto shrink-0">{Math.round(feed.pct)}%</span>
     </div>
   );
 }
@@ -166,16 +168,20 @@ function StatCard({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col rounded-2xl border border-border bg-card p-5">
+    <div className="flex flex-col rounded-2xl border border-border bg-card p-4 sm:p-5">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-4xl font-extrabold leading-none tracking-tight">{value}</p>
-          <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <p className="truncate text-3xl font-extrabold leading-none tracking-tight sm:text-4xl">
+            {value}
+          </p>
+          <p className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground sm:text-xs">
             {label}
           </p>
         </div>
-        <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl ${chip}`}>
-          <Icon size={26} strokeWidth={2} />
+        <span
+          className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl sm:h-12 sm:w-12 ${chip}`}
+        >
+          <Icon size={22} strokeWidth={2} />
         </span>
       </div>
       {footer}
@@ -275,10 +281,10 @@ export default async function FarmDashboard() {
           label="Mortality Rate"
           value={`${d.mortalityRate.toFixed(1)}%`}
           footer={
-            <div className="mt-4 flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-xs font-semibold text-muted-foreground">
-              <Skull size={14} />
-              <span>
-                {d.deaths7} death{d.deaths7 !== 1 ? "s" : ""} · last 7 days
+            <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-muted px-2.5 py-2 text-[11px] font-semibold text-muted-foreground sm:mt-4 sm:gap-2 sm:px-3 sm:text-xs">
+              <Skull size={13} className="shrink-0" />
+              <span className="truncate">
+                {d.deaths7} death{d.deaths7 !== 1 ? "s" : ""} · 7 days
               </span>
             </div>
           }
