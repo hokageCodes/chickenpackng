@@ -26,7 +26,7 @@ export default async function FarmDashboardLayout({
     <div className="flex min-h-screen bg-neutral-50 text-neutral-900">
       <aside className="hidden w-60 shrink-0 flex-col border-r border-neutral-200 bg-white p-4 md:flex">
         <div className="px-2 pb-4">
-          <p className="text-sm font-bold">Protein Park</p>
+          <p className="text-sm font-bold">Sinum Agro</p>
           <p className="text-xs text-neutral-500">FarmOS</p>
         </div>
         <nav className="flex flex-1 flex-col gap-1">

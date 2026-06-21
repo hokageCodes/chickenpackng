@@ -97,7 +97,7 @@ export default async function FarmDashboard() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-sm text-neutral-500">Today at Protein Park</p>
+        <p className="text-sm text-neutral-500">Today at Sinum Agro</p>
       </header>
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">

@@ -1,14 +1,14 @@
-# Protein Park FarmOS — Master Project Blueprint
+# Sinum Agro FarmOS — Master Project Blueprint
 
 > Single source of truth for the platform.
 >
-> **North star:** _"A farm management and commerce platform that allows Protein Park
+> **North star:** _"A farm management and commerce platform that allows Sinum Agro
 > to manage livestock operations, inventory, finances, and customer orders from a
 > single system."_
 >
 > Status legend: ✅ built · 🟡 partial · ⬜ not started · ❓ needs decision
 >
-> _Last updated: 2026-06-21 — reconciled with the Protein Park planning conversation._
+> _Last updated: 2026-06-21 — reconciled with the Sinum Agro planning conversation._
 
 ---
 
@@ -30,13 +30,14 @@ the internal system first, the website second.** Do **not** overbuild the public
 website before the internal system is stable — if inventory is wrong, the website
 becomes a liar.
 
-### Brand note
-- The existing repo is branded **"Chicken Pack" / ChickenPack NG** (chicken only).
-- The strategic direction is **"Protein Park" (formerly "Chicken Park")** — expanding
-  into **fish** and other proteins, rebranded.
-- Internal product name: **Protein Park FarmOS**. The website is a *feature* of it.
-- ❓ Confirm: is the public brand becoming "Protein Park", and does the current
-  ChickenPack storefront get rebranded/folded in, or kept separate?
+### Brand & entity note
+- **Sinum Agro Food Technology** is the **farm / parent business**. The internal
+  **FarmOS** is *its* operating system (livestock, fish, feed, finance, analytics).
+- **Protein Pack** is the **e-commerce offshoot** — the consumer-facing storefront
+  brand that sells what the farm produces.
+- The existing repo is currently branded **"Chicken Pack" / ChickenPack NG** (chicken
+  only); the public storefront becomes **Protein Pack** (expanding into fish + eggs).
+- So: **Sinum Agro FarmOS** (internal) + **Protein Pack** (public store), one shared DB.
 
 ---
 
@@ -80,7 +81,7 @@ frozen/live stock → sellable products on the website.
 ```
    INTERNET
        ↓
- [ Protein Park Website ]
+ [ Protein Pack Website ]
     ↓            ↓
  Orders     Leads / WhatsApp
     ↓
@@ -214,7 +215,7 @@ Three layers: **brand & trust → product discovery → order/conversion.**
 | **Shop / Products** | 🟡 | Chicken (whole/halved/cut), **fish (tilapia/catfish ❓)**, eggs (future). Card: image, price per kg/unit, availability (in stock / pre-order), "Add to order" |
 | **Product detail** | ✅ (chicken) | Description, weight options, **retail vs wholesale pricing**, availability, delivery info |
 | **Order page** | ⬜ | **MVP = Request Order System** (see §6.2), not full checkout |
-| **About** | 🟡 | Protein Park story (formerly Chicken Park), expansion into fish, farming practices, hygiene/freezing process |
+| **About** | 🟡 | Protein Pack story, expansion into fish, farming practices, hygiene/freezing process |
 | **Contact** | ⬜ | Click-to-call, **WhatsApp button (critical in NG)**, email, map, hours |
 | **Delivery Info** | ⬜ | Zones (mainland / island / outside Lagos), fees, min order, same-day vs scheduled |
 | **FAQ** | 🟡 | Live chickens? Deliver outside Lagos? Fresh vs frozen fish? Bulk? Min order? |
@@ -331,7 +332,7 @@ reorder, saved addresses).
 ## 12. Decisions & Open Questions
 
 **Resolved (2026-06-21):**
-1. ✅ **Branding:** proceed as **Protein Park**. Storefront gets rebranded/folded in.
+1. ✅ **Branding:** proceed as **Sinum Agro**. Storefront gets rebranded/folded in.
 2. ✅ **Eggs:** **yes, eggs are sold** → layer egg-production is **in Phase 1**.
 3. ✅ **Fish:** **catfish** (live/fresh from 2 ponds) + **smoked fish** (processed,
    value-added product made from catfish — an inventory item *and* a sellable product).

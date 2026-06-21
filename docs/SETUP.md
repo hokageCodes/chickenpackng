@@ -1,4 +1,4 @@
-# Protein Park FarmOS — Setup & Architecture
+# Sinum Agro FarmOS — Setup & Architecture
 
 What's been scaffolded for **Phase 1 (Farm ERP)** and how to run it.
 See [PRD-Phase1-FarmERP.md](./PRD-Phase1-FarmERP.md) for the full spec.
@@ -27,7 +27,7 @@ app/
   (public)/                 # marketing storefront — Navbar/Footer/Cart chrome
     layout.jsx
     page.js  products/  company/  cart/
-  farm/                     # Protein Park FarmOS (protected)
+  farm/                     # Sinum Agro FarmOS (protected)
     login/                  # standalone sign-in (no sidebar)
     (dashboard)/
       layout.tsx            # sidebar + sign-out; redirects if unauthenticated
@@ -58,7 +58,7 @@ gets its own chrome — no public header bleeding into the dashboard.
 DATABASE_URL="postgresql://…neon.tech/neondb?sslmode=require&channel_binding=require"
 AUTH_SECRET="…"            # generate: openssl rand -base64 33
 AUTH_TRUST_HOST=true
-OWNER_EMAIL="owner@proteinpark.ng"
+OWNER_EMAIL="owner@sinumagro.com"
 OWNER_PASSWORD="changeme123"   # change, then re-run npm run db:seed
 ```
 

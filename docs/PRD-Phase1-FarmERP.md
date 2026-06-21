@@ -1,4 +1,4 @@
-# PRD — Phase 1: Protein Park FarmOS (Farm ERP Core)
+# PRD — Phase 1: Sinum Agro FarmOS (Farm ERP Core)
 
 > Product Requirements Document for the first buildable system.
 > Parent strategy: [PROJECT_BLUEPRINT.md](./PROJECT_BLUEPRINT.md)
@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-Protein Park is a Lagos poultry + fish farm (350 birds — 150 broilers, 200 layers —
+Sinum Agro is a Lagos poultry + fish farm (350 birds — 150 broilers, 200 layers —
 plus 2 catfish ponds) that currently runs on paper, manual measurement, and WhatsApp.
 Mortality and vaccinations are not recorded at all; harvests are on paper; expenses
 live in WhatsApp. The owner therefore has **no visibility** into mortality rate, cost
@@ -456,7 +456,7 @@ customer-facing anything, multi-user staff accounts (schema-ready only).
 
 - **Phase 2:** full Inventory (live/frozen/smoked/feed unified, valuation).
 - **Phase 3:** Sales (customers: retail/distributor/agent, orders, revenue linkage).
-- **Phase 4:** Public website (Protein Park brand, chicken + catfish + smoked fish + eggs, Request-Order via WhatsApp).
+- **Phase 4:** Public website (Protein Pack brand, chicken + catfish + smoked fish + eggs, Request-Order via WhatsApp).
 - **Phase 5:** Full e-commerce (cart, checkout, Paystack/Flutterwave, delivery tracking, customer portal).
 - **Later:** multi-user staff, forecasting, FCR analytics, SaaS multi-tenant (sell FarmOS to other farms).
 
