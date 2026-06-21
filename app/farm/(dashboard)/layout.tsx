@@ -49,7 +49,7 @@ export default async function FarmDashboardLayout({
               await signOut({ redirectTo: "/farm/login" });
             }}
           >
-            <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-destructive px-3 py-2 text-sm font-semibold text-destructive-foreground shadow-sm transition-colors hover:bg-destructive/90">
+            <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700">
               <LogOut size={18} strokeWidth={2} />
               Sign out
             </button>
