@@ -5,15 +5,26 @@ import { usePathname } from "next/navigation";
 import { Leaf, Menu, X } from "lucide-react";
 import SidebarNav from "./SidebarNav";
 
-// Mobile-only navigation. Everything here is hidden at `md` and up, so it can
-// never affect the desktop layout.
-export default function MobileNav({
-  brand,
-  footer,
-}: {
-  brand: React.ReactNode;
-  footer: React.ReactNode;
-}) {
+function Brand() {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground">
+        <Leaf size={18} strokeWidth={2} />
+      </div>
+      <div className="leading-tight">
+        <p className="text-sm font-bold text-foreground">Sinum Agro</p>
+        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          FarmOS
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Mobile-only navigation. The whole thing is hidden at `md` and up, and the
+// full-screen panel only mounts while open, so it can never affect desktop or
+// appear open by default.
+export default function MobileNav({ footer }: { footer: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -22,7 +33,7 @@ export default function MobileNav({
     setOpen(false);
   }, [pathname]);
 
-  // Lock scroll while the drawer is open.
+  // Lock background scroll while open.
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
@@ -32,52 +43,39 @@ export default function MobileNav({
 
   return (
     <div className="md:hidden">
-      {/* Top bar */}
-      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-card px-4 py-3">
+      {/* Top bar: logo left, hamburger right */}
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-card px-4 py-3">
+        <Brand />
         <button
           onClick={() => setOpen(true)}
           aria-label="Open menu"
-          className="rounded-lg p-1.5 text-foreground hover:bg-accent"
+          className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-accent"
         >
-          <Menu size={22} />
+          <Menu size={24} />
         </button>
-        <div className="flex items-center gap-2">
-          <div className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground">
-            <Leaf size={16} strokeWidth={2} />
-          </div>
-          <span className="text-sm font-bold">Sinum Agro</span>
-        </div>
       </header>
 
-      {/* Backdrop */}
+      {/* Full-screen nav (only mounted while open) */}
       {open && (
-        <button
-          aria-label="Close menu"
-          onClick={() => setOpen(false)}
-          className="fixed inset-0 z-40 bg-black/40"
-        />
-      )}
+        <div className="fixed inset-0 z-50 flex flex-col bg-card duration-200 animate-in fade-in slide-in-from-left-2">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <Brand />
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close menu"
+              className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-accent"
+            >
+              <X size={24} />
+            </button>
+          </div>
 
-      {/* Drawer */}
-      <aside
-        className={
-          "fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85%] flex-col border-r border-border bg-card px-4 py-5 transition-transform duration-200 " +
-          (open ? "translate-x-0" : "-translate-x-full")
-        }
-      >
-        <div className="mb-5 flex items-start justify-between border-b border-border pb-5">
-          {brand}
-          <button
-            onClick={() => setOpen(false)}
-            aria-label="Close menu"
-            className="rounded-lg p-1 text-muted-foreground hover:bg-accent"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex-1 overflow-y-auto p-3">
+            <SidebarNav />
+          </div>
+
+          <div className="border-t border-border px-3 pb-4">{footer}</div>
         </div>
-        <SidebarNav />
-        {footer}
-      </aside>
+      )}
     </div>
   );
 }

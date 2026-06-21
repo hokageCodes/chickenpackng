@@ -73,8 +73,8 @@ export default async function FarmDashboardLayout({
 
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile-only top bar + drawer (md:hidden) */}
-        <MobileNav brand={<Brand />} footer={footer} />
+        {/* Mobile-only top bar + full-screen nav (md:hidden) */}
+        <MobileNav footer={footer} />
         <main className="flex-1 bg-muted/30 p-4 sm:p-6 md:p-8">{children}</main>
       </div>
     </div>
