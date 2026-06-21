@@ -1,8 +1,5 @@
 import './globals.css';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
 import Head from 'next/head';
-import CartProviderWrapper from '@/components/CartProvider';
 
 export const metadata = {
   title: 'Chicken Pack | Food that matters - to me, to farmers and to the planet we all share.',
@@ -110,13 +107,7 @@ export default function RootLayout({ children }) {
         crossOrigin="anonymous"
       />
       </Head>
-      <body className="flex flex-col min-h-screen">
-        <CartProviderWrapper>
-          <Navbar />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </CartProviderWrapper>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

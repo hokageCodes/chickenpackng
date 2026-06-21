@@ -8,7 +8,7 @@ import { Search } from "lucide-react";
 
 import { products } from "@/data/products";
 import FAQ from "@/components/sections/FAQSection";
-import { useCart } from "../../contexts/CartContext";
+import { useCart } from "@/contexts/CartContext";
 
 const categories = ["Full", "Laps", "Chest Wings"];
 const sizes = ["1kg", "2kg", "5kg"];

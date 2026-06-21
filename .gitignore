@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# prisma generated client (regenerated via postinstall)
+/lib/generated
+
+# local nosync build dir (iCloud-excluded)
+/.next.nosync
