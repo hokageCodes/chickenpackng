@@ -10,7 +10,7 @@ const NAV = [
   { href: "/farm/medication", label: "Medication", ready: false },
   { href: "/farm/mortality", label: "Mortality", ready: true },
   { href: "/farm/harvest", label: "Harvest", ready: false },
-  { href: "/farm/finance", label: "Finance", ready: false },
+  { href: "/farm/finance", label: "Finance", ready: true },
   { href: "/farm/analytics", label: "Analytics", ready: false },
 ];
 
