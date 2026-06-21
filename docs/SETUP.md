@@ -55,7 +55,7 @@ gets its own chrome — no public header bleeding into the dashboard.
 ## Environment variables (`.env`, gitignored)
 
 ```
-DATABASE_URL="postgresql://…neon.tech/neondb?sslmode=require&channel_binding=require"
+DATABASE_URL="postgresql://…neon.tech/neondb?sslmode=verify-full&channel_binding=require"
 AUTH_SECRET="…"            # generate: openssl rand -base64 33
 AUTH_TRUST_HOST=true
 OWNER_EMAIL="owner@sinumagro.com"
