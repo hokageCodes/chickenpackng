@@ -1,0 +1,270 @@
+// Protein Park FarmOS — Phase 1 schema
+// See docs/PRD-Phase1-FarmERP.md §7
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Identity & RBAC ─────────────────────────────────────────
+enum Role {
+  OWNER
+  FARM_MANAGER
+  FARM_STAFF
+  SALES_STAFF
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  role         Role     @default(OWNER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ── Livestock ───────────────────────────────────────────────
+enum AnimalType {
+  BROILER
+  LAYER
+}
+
+enum GroupStatus {
+  ACTIVE
+  HARVESTING
+  CLOSED
+}
+
+/// A broiler "batch" OR a layer "flock"
+model AnimalGroup {
+  id              String      @id @default(cuid())
+  type            AnimalType
+  label           String // "Batch A", "Flock A"
+  breed           String?
+  arrivalDate     DateTime
+  initialCount    Int
+  currentCount    Int
+  expectedHarvest DateTime?
+  status          GroupStatus @default(ACTIVE)
+  houseName       String?
+  createdById     String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  mortalities  MortalityRecord[]
+  healthEvents HealthEvent[]
+  eggLogs      EggLog[]
+  harvests     HarvestRecord[]
+  feedUsages   FeedUsage[]
+  expenses     Expense[]
+  revenues     Revenue[]
+}
+
+model Pond {
+  id              String   @id @default(cuid())
+  label           String // "Pond 1"
+  species         String   @default("Catfish")
+  quantityStocked Int
+  currentCount    Int
+  stockedDate     DateTime
+  createdById     String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  mortalities  MortalityRecord[]
+  harvests     HarvestRecord[]
+  healthEvents HealthEvent[]
+  feedUsages   FeedUsage[]
+  expenses     Expense[]
+  revenues     Revenue[]
+}
+
+model EggLog {
+  id          String      @id @default(cuid())
+  groupId     String
+  group       AnimalGroup @relation(fields: [groupId], references: [id])
+  date        DateTime
+  collected   Int
+  grade       String? // small/medium/large or A/B
+  broken      Int         @default(0)
+  createdById String
+  createdAt   DateTime    @default(now())
+}
+
+// ── Feed ────────────────────────────────────────────────────
+enum FeedCategory {
+  BROILER
+  LAYER
+  FISH
+}
+
+model FeedPurchase {
+  id          String       @id @default(cuid())
+  category    FeedCategory
+  bags        Float
+  costNGN     Decimal      @db.Decimal(12, 2)
+  vendor      String?
+  date        DateTime
+  createdById String
+  createdAt   DateTime     @default(now())
+}
+
+model FeedUsage {
+  id          String       @id @default(cuid())
+  category    FeedCategory
+  bags        Float
+  date        DateTime
+  groupId     String?
+  group       AnimalGroup? @relation(fields: [groupId], references: [id])
+  pondId      String?
+  pond        Pond?        @relation(fields: [pondId], references: [id])
+  createdById String
+  createdAt   DateTime     @default(now())
+}
+
+/// Running balance — one row per feed category
+model FeedStock {
+  category     FeedCategory @id
+  bags         Float
+  lowThreshold Float        @default(2)
+  updatedAt    DateTime     @updatedAt
+}
+
+// ── Medication & Health ─────────────────────────────────────
+model Medication {
+  id           String        @id @default(cuid())
+  name         String // Doxygen, Tylodox, Amprolium, Multivitamin
+  quantity     Float
+  unit         String        @default("unit")
+  purchaseDate DateTime?
+  expiryDate   DateTime?
+  remaining    Float
+  createdById  String
+  createdAt    DateTime      @default(now())
+  healthEvents HealthEvent[]
+}
+
+enum HealthEventType {
+  VACCINATION
+  MEDICATION
+  VET_VISIT
+  OUTBREAK
+}
+
+model HealthEvent {
+  id           String          @id @default(cuid())
+  type         HealthEventType
+  date         DateTime
+  groupId      String?
+  group        AnimalGroup?    @relation(fields: [groupId], references: [id])
+  pondId       String?
+  pond         Pond?           @relation(fields: [pondId], references: [id])
+  medicationId String?
+  medication   Medication?     @relation(fields: [medicationId], references: [id])
+  dosage       String?
+  notes        String?
+  createdById  String
+  createdAt    DateTime        @default(now())
+}
+
+// ── Mortality & Harvest ─────────────────────────────────────
+model MortalityRecord {
+  id          String       @id @default(cuid())
+  date        DateTime
+  animalType  String // "broiler" | "layer" | "catfish"
+  groupId     String?
+  group       AnimalGroup? @relation(fields: [groupId], references: [id])
+  pondId      String?
+  pond        Pond?        @relation(fields: [pondId], references: [id])
+  quantity    Int
+  cause       String?
+  notes       String?
+  createdById String
+  createdAt   DateTime     @default(now())
+}
+
+model HarvestRecord {
+  id          String       @id @default(cuid())
+  date        DateTime
+  groupId     String?
+  group       AnimalGroup? @relation(fields: [groupId], references: [id])
+  pondId      String?
+  pond        Pond?        @relation(fields: [pondId], references: [id])
+  quantity    Int
+  weightKg    Float
+  createdById String
+  createdAt   DateTime     @default(now())
+}
+
+// ── Inventory (live, frozen, processed, feed) ───────────────
+enum InventoryKind {
+  LIVE_POULTRY
+  LIVE_FISH
+  FROZEN_CHICKEN
+  FRESH_FISH
+  SMOKED_FISH
+  EGGS
+}
+
+model Inventory {
+  id        String        @id @default(cuid())
+  kind      InventoryKind
+  label     String
+  quantity  Float // kg or units
+  unit      String // "kg" | "crate" | "piece"
+  updatedAt DateTime      @updatedAt
+}
+
+// ── Finance ─────────────────────────────────────────────────
+enum ExpenseCategory {
+  FEED
+  MEDICATION
+  FUEL
+  STAFF
+  TRANSPORTATION
+  MAINTENANCE
+  UTILITIES
+  OTHER
+}
+
+enum RevenueSource {
+  ONLINE
+  OFFLINE
+  WHOLESALE
+}
+
+model Expense {
+  id          String          @id @default(cuid())
+  category    ExpenseCategory
+  amountNGN   Decimal         @db.Decimal(12, 2)
+  date        DateTime
+  vendor      String?
+  notes       String?
+  groupId     String?
+  group       AnimalGroup?    @relation(fields: [groupId], references: [id])
+  pondId      String?
+  pond        Pond?           @relation(fields: [pondId], references: [id])
+  createdById String
+  createdAt   DateTime        @default(now())
+}
+
+model Revenue {
+  id          String        @id @default(cuid())
+  source      RevenueSource
+  amountNGN   Decimal       @db.Decimal(12, 2)
+  date        DateTime
+  customer    String?
+  notes       String?
+  groupId     String?
+  group       AnimalGroup?  @relation(fields: [groupId], references: [id])
+  pondId      String?
+  pond        Pond?         @relation(fields: [pondId], references: [id])
+  createdById String
+  createdAt   DateTime      @default(now())
+}
