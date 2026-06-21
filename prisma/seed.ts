@@ -13,9 +13,11 @@ async function main() {
   const password = process.env.OWNER_PASSWORD ?? "changeme123";
   const passwordHash = bcrypt.hashSync(password, 10);
 
+  // Only set the name when first creating the owner — the DB is the source of
+  // truth after that, so re-seeding never overwrites a name edited in-app/DB.
   const owner = await prisma.user.upsert({
     where: { email },
-    update: { name },
+    update: {},
     create: { name, email, passwordHash, role: "OWNER" },
   });
   const createdById = owner.id;
