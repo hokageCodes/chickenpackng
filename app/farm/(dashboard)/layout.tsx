@@ -31,13 +31,13 @@ export default async function FarmDashboardLayout({
         <SidebarNav />
 
         {/* User + sign out */}
-        <div className="mt-3 border-t border-border pt-3">
-          <div className="flex items-center gap-3 px-1 pb-2">
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-sm font-semibold text-muted-foreground">
+        <div className="mt-3 space-y-2 border-t border-border pt-4">
+          <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 px-3 py-2.5">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-sm font-bold text-primary">
               {(session.user.name ?? session.user.email ?? "?").charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 leading-tight">
-              <p className="truncate text-sm font-medium text-foreground">
+              <p className="truncate text-sm font-semibold text-foreground">
                 {session.user.name ?? "Owner"}
               </p>
               <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
@@ -49,8 +49,8 @@ export default async function FarmDashboardLayout({
               await signOut({ redirectTo: "/farm/login" });
             }}
           >
-            <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive">
-              <LogOut size={18} strokeWidth={1.9} />
+            <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground">
+              <LogOut size={18} strokeWidth={2} />
               Sign out
             </button>
           </form>
