@@ -9,7 +9,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 const CATEGORIES = ["BROILER", "LAYER", "FISH"] as const;
 
 const inputClass =
-  "w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900";
+  "w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary";
 const labelClass = "mb-1 block font-medium text-neutral-700";
 
 function CategorySelect() {
@@ -67,7 +67,7 @@ function UsageForm({ targets }: { targets: TargetOption[] }) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-60"
+        className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
       >
         {pending ? "Saving…" : "Log usage"}
       </button>
@@ -109,7 +109,7 @@ function PurchaseForm() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-60"
+        className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
       >
         {pending ? "Saving…" : "Log purchase"}
       </button>

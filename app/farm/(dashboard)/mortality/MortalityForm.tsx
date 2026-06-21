@@ -33,7 +33,7 @@ export default function MortalityForm({ targets }: { targets: TargetOption[] }) 
             name="target"
             required
             defaultValue=""
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary"
           >
             <option value="" disabled>
               Select…
@@ -54,7 +54,7 @@ export default function MortalityForm({ targets }: { targets: TargetOption[] }) 
             required
             defaultValue={today()}
             max={today()}
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary"
           />
         </label>
 
@@ -66,7 +66,7 @@ export default function MortalityForm({ targets }: { targets: TargetOption[] }) 
             min={1}
             required
             placeholder="0"
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary"
           />
         </label>
 
@@ -76,7 +76,7 @@ export default function MortalityForm({ targets }: { targets: TargetOption[] }) 
             type="text"
             name="cause"
             placeholder="e.g. heat, disease"
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary"
           />
         </label>
       </div>
@@ -86,7 +86,7 @@ export default function MortalityForm({ targets }: { targets: TargetOption[] }) 
         <textarea
           name="notes"
           rows={2}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary"
         />
       </label>
 
@@ -96,7 +96,7 @@ export default function MortalityForm({ targets }: { targets: TargetOption[] }) 
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-60"
+        className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
       >
         {isPending ? "Saving…" : "Log death"}
       </button>

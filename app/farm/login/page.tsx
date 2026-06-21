@@ -27,7 +27,7 @@ export default function FarmLoginPage() {
               type="email"
               required
               autoComplete="email"
-              className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+              className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary"
             />
           </div>
 
@@ -40,7 +40,7 @@ export default function FarmLoginPage() {
               type="password"
               required
               autoComplete="current-password"
-              className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+              className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary"
             />
           </div>
 
@@ -51,7 +51,7 @@ export default function FarmLoginPage() {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full rounded-lg bg-neutral-900 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-60"
+            className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
           >
             {isPending ? "Signing in…" : "Sign in"}
           </button>

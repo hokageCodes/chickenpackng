@@ -22,7 +22,7 @@ export default async function FarmDashboardLayout({
           <div className="leading-tight">
             <p className="text-[15px] font-bold text-foreground">Sinum Agro</p>
             <p className="text-xs text-muted-foreground">Food Technology</p>
-            <span className="mt-1 inline-block rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <span className="mt-1 inline-block rounded-md bg-gold/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gold-foreground">
               FarmOS
             </span>
           </div>

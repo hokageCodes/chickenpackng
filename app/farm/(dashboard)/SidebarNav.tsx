@@ -66,7 +66,7 @@ export default function SidebarNav() {
               "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors " +
               (active
                 ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground")
+                : "text-muted-foreground hover:bg-primary/10 hover:text-primary")
             }
           >
             <Icon
@@ -74,7 +74,7 @@ export default function SidebarNav() {
               strokeWidth={active ? 2.25 : 1.9}
               className={
                 "shrink-0 transition-colors " +
-                (active ? "text-primary-foreground" : "text-muted-foreground group-hover:text-accent-foreground")
+                (active ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary")
               }
             />
             <span className="flex-1">{label}</span>
