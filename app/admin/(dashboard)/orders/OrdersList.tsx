@@ -1,44 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Eye, Trash2, X, ChevronLeft, ChevronRight, Package } from "lucide-react";
+import { updateOrderStatus, deleteOrder } from "./actions";
 
 export type OrderItem = { name: string; qty: number; price: number };
+export type OrderStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "OUT_FOR_DELIVERY"
+  | "DELIVERED"
+  | "CANCELLED";
 export type Order = {
   id: string;
+  ref: string;
   customer: string;
-  type: "Retail" | "Distributor" | "Agent";
+  type: string;
   status: OrderStatus;
   dateLabel: string;
   items: OrderItem[];
 };
-export type OrderStatus =
-  | "Pending"
-  | "Processing"
-  | "Out for delivery"
-  | "Delivered"
-  | "Cancelled";
 
-const STATUSES: OrderStatus[] = ["Pending", "Processing", "Out for delivery", "Delivered", "Cancelled"];
-const FILTERS = ["All", ...STATUSES] as const;
-
+const STATUSES: OrderStatus[] = ["PENDING", "PROCESSING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"];
+const STATUS_LABEL: Record<OrderStatus, string> = {
+  PENDING: "Pending",
+  PROCESSING: "Processing",
+  OUT_FOR_DELIVERY: "Out for delivery",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+};
 const STATUS_STYLE: Record<OrderStatus, string> = {
-  Pending: "bg-amber-100 text-amber-700",
-  Processing: "bg-sky-100 text-sky-600",
-  "Out for delivery": "bg-primary/10 text-primary",
-  Delivered: "bg-green-100 text-green-700",
-  Cancelled: "bg-red-100 text-red-600",
+  PENDING: "bg-amber-100 text-amber-700",
+  PROCESSING: "bg-sky-100 text-sky-600",
+  OUT_FOR_DELIVERY: "bg-primary/10 text-primary",
+  DELIVERED: "bg-green-100 text-green-700",
+  CANCELLED: "bg-red-100 text-red-600",
 };
 
 const naira = (n: number) => "₦" + n.toLocaleString("en-NG", { maximumFractionDigits: 0 });
 const orderTotal = (o: Order) => o.items.reduce((a, i) => a + i.qty * i.price, 0);
 const itemCount = (o: Order) => o.items.reduce((a, i) => a + i.qty, 0);
-const initialOf = (s: string) => s.charAt(0).toUpperCase();
+const initialOf = (s: string) => (s.charAt(0) || "?").toUpperCase();
 
 function StatusBadge({ status }: { status: OrderStatus }) {
   return (
     <span className={"inline-block rounded-md px-2 py-0.5 text-[11px] font-semibold " + STATUS_STYLE[status]}>
-      {status}
+      {STATUS_LABEL[status]}
     </span>
   );
 }
@@ -46,57 +54,69 @@ function StatusBadge({ status }: { status: OrderStatus }) {
 function StatusSelect({
   value,
   onChange,
+  disabled,
 }: {
   value: OrderStatus;
   onChange: (s: OrderStatus) => void;
+  disabled?: boolean;
 }) {
   return (
     <select
       value={value}
+      disabled={disabled}
       onChange={(e) => onChange(e.target.value as OrderStatus)}
       onClick={(e) => e.stopPropagation()}
       className={
-        "cursor-pointer rounded-md border-0 px-2 py-1 text-xs font-semibold outline-none ring-1 ring-inset ring-transparent focus:ring-primary " +
+        "cursor-pointer rounded-md border-0 px-2 py-1 text-xs font-semibold outline-none ring-1 ring-inset ring-transparent focus:ring-primary disabled:opacity-60 " +
         STATUS_STYLE[value]
       }
     >
       {STATUSES.map((s) => (
         <option key={s} value={s} className="bg-card text-foreground">
-          {s}
+          {STATUS_LABEL[s]}
         </option>
       ))}
     </select>
   );
 }
 
-export default function OrdersList({ orders: initial }: { orders: Order[] }) {
-  const [orders, setOrders] = useState<Order[]>(initial);
-  const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
+export default function OrdersList({ orders }: { orders: Order[] }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [filter, setFilter] = useState<"ALL" | OrderStatus>("ALL");
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
 
-  const filtered = orders.filter((o) => filter === "All" || o.status === filter);
+  const filtered = orders.filter((o) => filter === "ALL" || o.status === filter);
   const pageSize = 8;
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const current = Math.min(page, totalPages);
   const start = (current - 1) * pageSize;
   const paginated = filtered.slice(start, start + pageSize);
-
   const viewing = orders.find((o) => o.id === viewingId) ?? null;
 
   function setStatus(id: string, status: OrderStatus) {
-    // Sample data: update locally. Real impl would call a server action then refresh.
-    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
+    startTransition(async () => {
+      await updateOrderStatus(id, status);
+      router.refresh();
+    });
   }
   function remove(id: string) {
     if (!confirm("Delete this order?")) return;
-    setOrders((prev) => prev.filter((o) => o.id !== id));
-    if (viewingId === id) setViewingId(null);
+    startTransition(async () => {
+      await deleteOrder(id);
+      if (viewingId === id) setViewingId(null);
+      router.refresh();
+    });
   }
+
+  const FILTER_OPTIONS: { value: "ALL" | OrderStatus; label: string }[] = [
+    { value: "ALL", label: "All" },
+    ...STATUSES.map((s) => ({ value: s, label: STATUS_LABEL[s] })),
+  ];
 
   return (
     <section className="rounded-2xl border border-border bg-card">
-      {/* Header + filter */}
       <div className="flex flex-col gap-3 border-b border-border px-2 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <h2 className="px-1 text-sm font-semibold sm:px-0">Orders</h2>
         <select
@@ -107,34 +127,41 @@ export default function OrdersList({ orders: initial }: { orders: Order[] }) {
           }}
           className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary sm:hidden"
         >
-          {FILTERS.map((f) => (
-            <option key={f} value={f}>
-              {f}
+          {FILTER_OPTIONS.map((f) => (
+            <option key={f.value} value={f.value}>
+              {f.label}
             </option>
           ))}
         </select>
         <div className="hidden flex-wrap gap-1.5 sm:flex">
-          {FILTERS.map((f) => (
+          {FILTER_OPTIONS.map((f) => (
             <button
-              key={f}
+              key={f.value}
               onClick={() => {
-                setFilter(f);
+                setFilter(f.value);
                 setPage(1);
               }}
               className={
                 "rounded-full px-3 py-1 text-xs font-semibold transition-colors " +
-                (filter === f
+                (filter === f.value
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:bg-accent")
               }
             >
-              {f}
+              {f.label}
             </button>
           ))}
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {orders.length === 0 ? (
+        <div className="px-5 py-12 text-center">
+          <p className="text-sm font-medium">No orders yet</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Orders placed through the storefront will appear here.
+          </p>
+        </div>
+      ) : filtered.length === 0 ? (
         <p className="px-5 py-10 text-center text-sm text-muted-foreground">No orders match this filter.</p>
       ) : (
         <>
@@ -155,7 +182,7 @@ export default function OrdersList({ orders: initial }: { orders: Order[] }) {
               <tbody>
                 {paginated.map((o) => (
                   <tr key={o.id} className="border-b border-border/60 transition-colors last:border-0 hover:bg-muted/40">
-                    <td className="px-5 py-3 font-semibold">{o.id}</td>
+                    <td className="px-5 py-3 font-semibold">{o.ref}</td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2">
                         <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
@@ -170,7 +197,7 @@ export default function OrdersList({ orders: initial }: { orders: Order[] }) {
                     <td className="px-5 py-3 text-muted-foreground">{itemCount(o)}</td>
                     <td className="px-5 py-3 font-semibold">{naira(orderTotal(o))}</td>
                     <td className="px-5 py-3">
-                      <StatusSelect value={o.status} onChange={(s) => setStatus(o.id, s)} />
+                      <StatusSelect value={o.status} disabled={pending} onChange={(s) => setStatus(o.id, s)} />
                     </td>
                     <td className="px-5 py-3 text-muted-foreground">{o.dateLabel}</td>
                     <td className="px-5 py-3">
@@ -184,8 +211,9 @@ export default function OrdersList({ orders: initial }: { orders: Order[] }) {
                         </button>
                         <button
                           onClick={() => remove(o.id)}
+                          disabled={pending}
                           aria-label="Delete order"
-                          className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600"
+                          className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -208,7 +236,7 @@ export default function OrdersList({ orders: initial }: { orders: Order[] }) {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">{o.customer}</p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {o.id} · {o.type} · {o.dateLabel}
+                      {o.ref} · {o.type} · {o.dateLabel}
                     </p>
                     <div className="mt-1.5 flex items-center gap-2">
                       <StatusBadge status={o.status} />
@@ -227,8 +255,9 @@ export default function OrdersList({ orders: initial }: { orders: Order[] }) {
                       </button>
                       <button
                         onClick={() => remove(o.id)}
+                        disabled={pending}
                         aria-label="Delete order"
-                        className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600"
+                        className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -272,17 +301,14 @@ export default function OrdersList({ orders: initial }: { orders: Order[] }) {
 
       {/* View side-drawer */}
       {viewing && (
-        <div
-          className="fixed inset-0 z-50 flex justify-end bg-black/50"
-          onClick={() => setViewingId(null)}
-        >
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/50" onClick={() => setViewingId(null)}>
           <div
             className="flex h-full w-full max-w-md flex-col bg-card shadow-xl duration-200 animate-in slide-in-from-right"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <div>
-                <p className="text-base font-bold">{viewing.id}</p>
+                <p className="text-base font-bold">{viewing.ref}</p>
                 <p className="text-xs text-muted-foreground">{viewing.dateLabel}</p>
               </div>
               <button
@@ -295,7 +321,6 @@ export default function OrdersList({ orders: initial }: { orders: Order[] }) {
             </div>
 
             <div className="flex-1 space-y-5 overflow-y-auto p-5">
-              {/* Customer */}
               <div className="flex items-center gap-3">
                 <span className="grid h-11 w-11 place-items-center rounded-full bg-muted text-base font-semibold text-muted-foreground">
                   {initialOf(viewing.customer)}
@@ -306,13 +331,11 @@ export default function OrdersList({ orders: initial }: { orders: Order[] }) {
                 </div>
               </div>
 
-              {/* Status */}
               <div>
                 <p className="mb-1 text-xs font-medium text-muted-foreground">Status</p>
-                <StatusSelect value={viewing.status} onChange={(s) => setStatus(viewing.id, s)} />
+                <StatusSelect value={viewing.status} disabled={pending} onChange={(s) => setStatus(viewing.id, s)} />
               </div>
 
-              {/* Items */}
               <div>
                 <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                   <Package size={13} /> Items
@@ -342,7 +365,8 @@ export default function OrdersList({ orders: initial }: { orders: Order[] }) {
             <div className="border-t border-border p-4">
               <button
                 onClick={() => remove(viewing.id)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+                disabled={pending}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-60"
               >
                 <Trash2 size={16} /> Delete order
               </button>

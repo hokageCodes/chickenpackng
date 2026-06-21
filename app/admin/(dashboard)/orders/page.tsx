@@ -1,93 +1,46 @@
 import { ShoppingCart, Clock, CheckCircle2, Wallet, type LucideIcon } from "lucide-react";
+import { prisma } from "@/lib/db";
 import OrdersList, { type Order } from "./OrdersList";
 
 export const dynamic = "force-dynamic";
 
 const naira = (n: number) => "₦" + n.toLocaleString("en-NG", { maximumFractionDigits: 0 });
-const total = (o: Order) => o.items.reduce((a, i) => a + i.qty * i.price, 0);
+const title = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
+const fmtDate = (d: Date) =>
+  new Intl.DateTimeFormat("en-NG", {
+    timeZone: "Africa/Lagos",
+    day: "2-digit",
+    month: "short",
+  }).format(new Date(d));
 
-// TODO: replace with real data once Order/Customer models exist (Phase 5 — storefront).
-const SAMPLE_ORDERS: Order[] = [
-  {
-    id: "ORD-1042",
-    customer: "Ifeoma Nwosu",
-    type: "Retail",
-    status: "Pending",
-    dateLabel: "21 Jun",
-    items: [
-      { name: "Full Chicken (2kg)", qty: 2, price: 3500 },
-      { name: "Crate of Eggs", qty: 1, price: 4200 },
-    ],
-  },
-  {
-    id: "ORD-1041",
-    customer: "Kemi Foods Ltd.",
-    type: "Distributor",
-    status: "Processing",
-    dateLabel: "21 Jun",
-    items: [
-      { name: "Full Chicken (5kg)", qty: 6, price: 8000 },
-      { name: "Chicken Laps (2kg)", qty: 4, price: 4500 },
-    ],
-  },
-  {
-    id: "ORD-1040",
-    customer: "Abuja Bistro",
-    type: "Agent",
-    status: "Out for delivery",
-    dateLabel: "20 Jun",
-    items: [
-      { name: "Smoked Catfish (1kg)", qty: 5, price: 6000 },
-      { name: "Fresh Catfish (5kg)", qty: 2, price: 11000 },
-    ],
-  },
-  {
-    id: "ORD-1039",
-    customer: "Tunde Bakare",
-    type: "Retail",
-    status: "Delivered",
-    dateLabel: "20 Jun",
-    items: [{ name: "Chicken Wings (1kg)", qty: 3, price: 2500 }],
-  },
-  {
-    id: "ORD-1038",
-    customer: "Mama Nkechi Kitchen",
-    type: "Agent",
-    status: "Delivered",
-    dateLabel: "19 Jun",
-    items: [
-      { name: "Full Chicken (2kg)", qty: 10, price: 3500 },
-      { name: "Crate of Eggs", qty: 4, price: 4200 },
-    ],
-  },
-  {
-    id: "ORD-1037",
-    customer: "Lagos Grill House",
-    type: "Distributor",
-    status: "Delivered",
-    dateLabel: "19 Jun",
-    items: [{ name: "Chicken Breast (5kg)", qty: 8, price: 11700 }],
-  },
-  {
-    id: "ORD-1036",
-    customer: "Chidi Okeke",
-    type: "Retail",
-    status: "Cancelled",
-    dateLabel: "18 Jun",
-    items: [{ name: "Smoked Catfish (1kg)", qty: 2, price: 6000 }],
-  },
-  {
-    id: "ORD-1035",
-    customer: "Greenfield Stores",
-    type: "Distributor",
-    status: "Delivered",
-    dateLabel: "18 Jun",
-    items: [
-      { name: "Full Chicken (5kg)", qty: 12, price: 8000 },
-      { name: "Chicken Laps (5kg)", qty: 5, price: 11000 },
-    ],
-  },
-];
+async function getData() {
+  const rows = await prisma.order.findMany({
+    orderBy: { placedAt: "desc" },
+    include: { customer: true, items: true },
+  });
+
+  const orders: Order[] = rows.map((o) => ({
+    id: o.id,
+    ref: `ORD-${o.number}`,
+    customer: o.customer.name,
+    type: title(o.customer.type),
+    status: o.status,
+    dateLabel: fmtDate(o.placedAt),
+    items: o.items.map((i) => ({
+      name: i.name,
+      qty: i.qty,
+      price: Number(i.unitPriceNGN),
+    })),
+  }));
+
+  const pending = orders.filter((o) => o.status === "PENDING").length;
+  const delivered = orders.filter((o) => o.status === "DELIVERED");
+  const revenue = rows
+    .filter((o) => o.status === "DELIVERED")
+    .reduce((a, o) => a + Number(o.totalNGN), 0);
+
+  return { orders, pending, deliveredCount: delivered.length, revenue };
+}
 
 function StatCard({
   icon: Icon,
@@ -117,32 +70,24 @@ function StatCard({
   );
 }
 
-export default function OrdersPage() {
-  const orders = SAMPLE_ORDERS;
-  const pending = orders.filter((o) => o.status === "Pending").length;
-  const delivered = orders.filter((o) => o.status === "Delivered");
-  const revenue = delivered.reduce((a, o) => a + total(o), 0);
+export default async function OrdersPage() {
+  const d = await getData();
 
   return (
     <div className="space-y-6">
       <header>
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-bold">Orders</h1>
-          <span className="rounded-md bg-gold/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gold-foreground">
-            Sample data
-          </span>
-        </div>
+        <h1 className="text-2xl font-bold">Orders</h1>
         <p className="text-sm text-muted-foreground">Customer orders across retail, distributors and agents</p>
       </header>
 
       <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <StatCard icon={ShoppingCart} chip="bg-primary/10 text-primary" label="Total orders" value={orders.length} />
-        <StatCard icon={Clock} chip="bg-amber-100 text-amber-700" label="Pending" value={pending} />
-        <StatCard icon={CheckCircle2} chip="bg-green-100 text-green-700" label="Delivered" value={delivered.length} />
-        <StatCard icon={Wallet} chip="bg-sky-100 text-sky-600" label="Revenue" value={naira(revenue)} />
+        <StatCard icon={ShoppingCart} chip="bg-primary/10 text-primary" label="Total orders" value={d.orders.length} />
+        <StatCard icon={Clock} chip="bg-amber-100 text-amber-700" label="Pending" value={d.pending} />
+        <StatCard icon={CheckCircle2} chip="bg-green-100 text-green-700" label="Delivered" value={d.deliveredCount} />
+        <StatCard icon={Wallet} chip="bg-sky-100 text-sky-600" label="Revenue" value={naira(d.revenue)} />
       </section>
 
-      <OrdersList orders={orders} />
+      <OrdersList orders={d.orders} />
     </div>
   );
 }
