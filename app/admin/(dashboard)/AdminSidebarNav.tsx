@@ -21,7 +21,7 @@ type NavItem = { href: string; label: string; icon: LucideIcon; ready: boolean }
 
 const NAV: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, ready: true },
-  { href: "/admin/orders", label: "Orders", icon: ShoppingCart, ready: false },
+  { href: "/admin/orders", label: "Orders", icon: ShoppingCart, ready: true },
   { href: "/admin/products", label: "Products", icon: Package, ready: false },
   { href: "/admin/customers", label: "Customers", icon: Users, ready: false },
   { href: "/admin/payments", label: "Payments", icon: CreditCard, ready: false },
