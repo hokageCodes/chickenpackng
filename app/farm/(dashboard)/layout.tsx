@@ -8,7 +8,7 @@ const NAV = [
   { href: "/farm/fish", label: "Fish", ready: false },
   { href: "/farm/feed", label: "Feed", ready: false },
   { href: "/farm/medication", label: "Medication", ready: false },
-  { href: "/farm/mortality", label: "Mortality", ready: false },
+  { href: "/farm/mortality", label: "Mortality", ready: true },
   { href: "/farm/harvest", label: "Harvest", ready: false },
   { href: "/farm/finance", label: "Finance", ready: false },
   { href: "/farm/analytics", label: "Analytics", ready: false },
