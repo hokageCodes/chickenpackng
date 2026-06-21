@@ -8,7 +8,7 @@ import { products } from "@/data/products";
 import { ShoppingCart, Star, X } from "lucide-react";
 import { motion } from "framer-motion";
 import FAQ from "@/components/sections/FAQSection";
-import { useCart } from "../../../contexts/CartContext";
+import { useCart } from "@/contexts/CartContext";
 
 export default function SingleProductPage() {
   const { id } = useParams();
