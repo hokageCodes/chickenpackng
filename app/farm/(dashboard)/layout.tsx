@@ -6,7 +6,7 @@ const NAV = [
   { href: "/farm", label: "Dashboard", ready: true },
   { href: "/farm/poultry", label: "Poultry", ready: false },
   { href: "/farm/fish", label: "Fish", ready: false },
-  { href: "/farm/feed", label: "Feed", ready: false },
+  { href: "/farm/feed", label: "Feed", ready: true },
   { href: "/farm/medication", label: "Medication", ready: false },
   { href: "/farm/mortality", label: "Mortality", ready: true },
   { href: "/farm/harvest", label: "Harvest", ready: false },
