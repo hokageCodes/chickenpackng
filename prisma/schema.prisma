@@ -132,6 +132,7 @@ model FeedUsage {
 model FeedStock {
   category     FeedCategory @id
   bags         Float
+  capacityBags Float        @default(0) // peak stock; used as the "full" gauge baseline
   lowThreshold Float        @default(2)
   updatedAt    DateTime     @updatedAt
 }

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "FeedStock" ADD COLUMN     "capacityBags" DOUBLE PRECISION NOT NULL DEFAULT 0;

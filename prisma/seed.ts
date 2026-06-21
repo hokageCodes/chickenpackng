@@ -79,8 +79,8 @@ async function main() {
   for (const [category, bags] of feed) {
     await prisma.feedStock.upsert({
       where: { category },
-      update: { bags },
-      create: { category, bags },
+      update: { bags, capacityBags: bags },
+      create: { category, bags, capacityBags: bags },
     });
   }
   console.log("✓ Feed stock: Broiler 4, Layer 10, Fish 6 bags");

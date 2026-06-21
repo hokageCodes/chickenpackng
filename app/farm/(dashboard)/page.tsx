@@ -1,10 +1,36 @@
+import Link from "next/link";
+import {
+  Bird,
+  Egg,
+  Fish,
+  HeartPulse,
+  Wheat,
+  Wallet,
+  Skull,
+  ArrowRight,
+  PieChart,
+  type LucideIcon,
+} from "lucide-react";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
-// Greeting + date computed in the farm's local timezone (Lagos), regardless of
-// where the server runs.
+/* ---------- helpers ---------- */
+function daysAgo(n: number) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d;
+}
+function startOfToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+function startOfMonth() {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
 function greetingAndDate() {
   const now = new Date();
   const hour = Number(
@@ -25,29 +51,26 @@ function greetingAndDate() {
   }).format(now);
   return { greeting, date };
 }
+const naira = (n: number) =>
+  "₦" + n.toLocaleString("en-NG", { maximumFractionDigits: 0 });
+const title = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 
-function daysAgo(n: number) {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d;
-}
-function startOfToday() {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
+/* ---------- data ---------- */
+type FeedInfo = { bags: number; pct: number };
 
-async function getDashboard() {
+async function getData() {
   const [
     broilers,
     layers,
-    pondCount,
+    ponds,
     feedStocks,
-    totalMortality,
+    totalDeaths,
     totalInitial,
-    recentMortality,
-    recentExpenses,
-    todayFeed,
+    deaths7,
+    expenseMonth,
+    eggs7,
+    feedToday,
+    expenseByCategory,
   ] = await Promise.all([
     prisma.animalGroup.aggregate({
       _sum: { currentCount: true },
@@ -57,8 +80,8 @@ async function getDashboard() {
       _sum: { currentCount: true },
       where: { type: "LAYER", status: { not: "CLOSED" } },
     }),
-    prisma.pond.count(),
-    prisma.feedStock.findMany({ orderBy: { category: "asc" } }),
+    prisma.pond.aggregate({ _sum: { currentCount: true }, _count: true }),
+    prisma.feedStock.findMany(),
     prisma.mortalityRecord.aggregate({ _sum: { quantity: true } }),
     prisma.animalGroup.aggregate({ _sum: { initialCount: true } }),
     prisma.mortalityRecord.aggregate({
@@ -67,57 +90,142 @@ async function getDashboard() {
     }),
     prisma.expense.aggregate({
       _sum: { amountNGN: true },
+      where: { date: { gte: startOfMonth() } },
+    }),
+    prisma.eggLog.aggregate({
+      _sum: { collected: true },
       where: { date: { gte: daysAgo(7) } },
     }),
     prisma.feedUsage.aggregate({
       _sum: { bags: true },
       where: { date: { gte: startOfToday() } },
     }),
+    prisma.expense.groupBy({
+      by: ["category"],
+      _sum: { amountNGN: true },
+      where: { date: { gte: startOfMonth() } },
+    }),
   ]);
 
-  const deaths = totalMortality._sum.quantity ?? 0;
+  const feed = (cat: "BROILER" | "LAYER" | "FISH"): FeedInfo => {
+    const row = feedStocks.find((f) => f.category === cat);
+    const bags = row?.bags ?? 0;
+    const cap = row?.capacityBags ?? 0;
+    const pct = cap > 0 ? (bags / cap) * 100 : bags > 0 ? 100 : 0;
+    return { bags, pct };
+  };
+
+  const deaths = totalDeaths._sum.quantity ?? 0;
   const initial = totalInitial._sum.initialCount ?? 0;
-  const mortalityRate = initial > 0 ? (deaths / initial) * 100 : 0;
+
+  const expenses = expenseByCategory
+    .map((e) => ({ category: e.category, total: Number(e._sum.amountNGN ?? 0) }))
+    .sort((a, b) => b.total - a.total);
 
   return {
-    broilers: broilers._sum.currentCount ?? 0,
-    layers: layers._sum.currentCount ?? 0,
-    ponds: pondCount,
-    feedStocks,
-    mortalityRate,
-    recentMortality: recentMortality._sum.quantity ?? 0,
-    recentExpenses: Number(recentExpenses._sum.amountNGN ?? 0),
-    todayFeed: todayFeed._sum.bags ?? 0,
+    broilers: { count: broilers._sum.currentCount ?? 0, feed: feed("BROILER") },
+    layers: { count: layers._sum.currentCount ?? 0, feed: feed("LAYER") },
+    fish: { stocked: ponds._sum.currentCount ?? 0, ponds: ponds._count, feed: feed("FISH") },
+    mortalityRate: initial > 0 ? (deaths / initial) * 100 : 0,
+    deaths7: deaths7._sum.quantity ?? 0,
+    expenseMonth: Number(expenseMonth._sum.amountNGN ?? 0),
+    eggs7: eggs7._sum.collected ?? 0,
+    feedToday: feedToday._sum.bags ?? 0,
+    expenses,
   };
 }
 
-const naira = (n: number) =>
-  "₦" + n.toLocaleString("en-NG", { maximumFractionDigits: 2 });
-
-function Card({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string | number;
-  sub?: string;
-}) {
+/* ---------- UI bits ---------- */
+function FeedStrip({ feed }: { feed: FeedInfo }) {
+  const tone =
+    feed.pct > 50
+      ? "bg-green-50 text-green-700"
+      : feed.pct > 25
+        ? "bg-amber-50 text-amber-700"
+        : "bg-red-50 text-red-600";
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-      <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-        {label}
-      </p>
-      <p className="mt-2 text-2xl font-bold text-neutral-900">{value}</p>
-      {sub && <p className="mt-1 text-xs text-neutral-500">{sub}</p>}
+    <div className={`mt-4 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${tone}`}>
+      <Wheat size={14} />
+      <span>{feed.bags} bags feed left</span>
+      <span className="ml-auto">{Math.round(feed.pct)}%</span>
     </div>
   );
 }
 
+function StatCard({
+  icon: Icon,
+  chip,
+  label,
+  value,
+  footer,
+}: {
+  icon: LucideIcon;
+  chip: string;
+  label: string;
+  value: string | number;
+  footer?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col rounded-2xl border border-border bg-card p-5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-4xl font-extrabold leading-none tracking-tight">{value}</p>
+          <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {label}
+          </p>
+        </div>
+        <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl ${chip}`}>
+          <Icon size={26} strokeWidth={2} />
+        </span>
+      </div>
+      {footer}
+    </div>
+  );
+}
+
+const QUICK_ACTIONS: { href: string; label: string; icon: LucideIcon; chip: string }[] = [
+  { href: "/farm/mortality", label: "Log mortality", icon: Skull, chip: "bg-red-100 text-red-600" },
+  { href: "/farm/feed", label: "Log feed", icon: Wheat, chip: "bg-green-100 text-green-700" },
+  { href: "/farm/finance", label: "Log expense", icon: Wallet, chip: "bg-primary/10 text-primary" },
+];
+
+function MiniStat({
+  icon: Icon,
+  chip,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  chip: string;
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${chip}`}>
+        <Icon size={17} />
+      </span>
+      <div className="min-w-0">
+        <p className="text-sm font-bold leading-tight">{value}</p>
+        <p className="truncate text-xs text-muted-foreground">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- page ---------- */
 export default async function FarmDashboard() {
-  const [d, session] = await Promise.all([getDashboard(), auth()]);
+  const [d, session] = await Promise.all([getData(), auth()]);
   const { greeting, date } = greetingAndDate();
   const firstName = session?.user?.name?.split(" ")[0];
+
+  const expMax = Math.max(1, ...d.expenses.map((e) => e.total));
+  const mix = [
+    { label: "Broilers", value: d.broilers.count, color: "bg-primary" },
+    { label: "Layers", value: d.layers.count, color: "bg-gold" },
+    { label: "Fish", value: d.fish.stocked, color: "bg-sky-500" },
+  ];
+  const mixTotal = mix.reduce((a, m) => a + m.value, 0);
 
   return (
     <div className="space-y-6">
@@ -134,54 +242,176 @@ export default async function FarmDashboard() {
         </p>
       </header>
 
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Card label="Broilers" value={d.broilers} />
-        <Card label="Layers" value={d.layers} />
-        <Card label="Fish Ponds" value={d.ponds} />
-        <Card
+      {/* Livestock + mortality (feed folded into each card) */}
+      <section>
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-muted-foreground">
+          Livestock &amp; health
+        </h2>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard
+          icon={Bird}
+          chip="bg-primary/10 text-primary"
+          label="Broilers"
+          value={d.broilers.count}
+          footer={<FeedStrip feed={d.broilers.feed} />}
+        />
+        <StatCard
+          icon={Egg}
+          chip="bg-gold/20 text-gold-foreground"
+          label="Layers"
+          value={d.layers.count}
+          footer={<FeedStrip feed={d.layers.feed} />}
+        />
+        <StatCard
+          icon={Fish}
+          chip="bg-sky-100 text-sky-600"
+          label="Fish Ponds"
+          value={d.fish.ponds}
+          footer={<FeedStrip feed={d.fish.feed} />}
+        />
+        <StatCard
+          icon={HeartPulse}
+          chip="bg-red-100 text-red-600"
           label="Mortality Rate"
           value={`${d.mortalityRate.toFixed(1)}%`}
-          sub={`${d.recentMortality} deaths (7d)`}
+          footer={
+            <div className="mt-4 flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-xs font-semibold text-muted-foreground">
+              <Skull size={14} />
+              <span>
+                {d.deaths7} death{d.deaths7 !== 1 ? "s" : ""} · last 7 days
+              </span>
+            </div>
+          }
         />
+        </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-5 lg:col-span-2">
-          <h2 className="mb-3 text-sm font-semibold text-neutral-700">
-            Feed remaining
-          </h2>
-          {d.feedStocks.length === 0 ? (
-            <p className="text-sm text-neutral-500">No feed stock recorded.</p>
-          ) : (
-            <ul className="grid grid-cols-3 gap-3">
-              {d.feedStocks.map((f) => {
-                const low = f.bags <= f.lowThreshold;
-                return (
-                  <li
-                    key={f.category}
-                    className="rounded-xl border border-neutral-100 bg-neutral-50 p-3"
-                  >
-                    <p className="text-xs uppercase text-neutral-500">
-                      {f.category}
-                    </p>
-                    <p className="text-lg font-bold">
-                      {f.bags} <span className="text-xs font-normal">bags</span>
-                    </p>
-                    {low && (
-                      <span className="text-xs font-medium text-red-600">
-                        Low stock
-                      </span>
-                    )}
+      {/* Quick actions */}
+      <section>
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-muted-foreground">
+          Quick logs
+        </h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {QUICK_ACTIONS.map((a) => (
+          <Link
+            key={a.href}
+            href={a.href}
+            className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary hover:bg-primary/5"
+          >
+            <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${a.chip}`}>
+              <a.icon size={18} />
+            </span>
+            <span className="flex-1 text-sm font-semibold">{a.label}</span>
+            <ArrowRight size={16} className="text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        ))}
+        </div>
+      </section>
+
+      {/* Analytics + snapshot */}
+      <section>
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-muted-foreground">
+          Analytics
+        </h2>
+        <div className="grid gap-4 lg:grid-cols-3">
+        {/* Analytics */}
+        <div className="space-y-6 rounded-2xl border border-border bg-card p-5 lg:col-span-2">
+          {/* Expenses by category */}
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <PieChart size={16} className="text-muted-foreground" />
+                <h2 className="text-sm font-semibold">Expenses by category</h2>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {naira(d.expenseMonth)} this month
+              </p>
+            </div>
+            {d.expenses.length === 0 ? (
+              <p className="mt-4 text-sm text-muted-foreground">
+                No expenses logged this month.
+              </p>
+            ) : (
+              <ul className="mt-4 space-y-3">
+                {d.expenses.map((e) => (
+                  <li key={e.category}>
+                    <div className="mb-1 flex items-center justify-between text-xs">
+                      <span className="font-medium">{title(e.category)}</span>
+                      <span className="font-semibold">{naira(e.total)}</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-primary"
+                        style={{ width: `${Math.max(4, (e.total / expMax) * 100)}%` }}
+                      />
+                    </div>
                   </li>
-                );
-              })}
-            </ul>
-          )}
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Livestock mix */}
+          <div className="border-t border-border pt-5">
+            <h2 className="text-sm font-semibold">Livestock mix</h2>
+            {mixTotal === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">No livestock recorded.</p>
+            ) : (
+              <>
+                <div className="mt-3 flex h-3 overflow-hidden rounded-full bg-muted">
+                  {mix.map(
+                    (m) =>
+                      m.value > 0 && (
+                        <div
+                          key={m.label}
+                          className={m.color}
+                          style={{ width: `${(m.value / mixTotal) * 100}%` }}
+                        />
+                      )
+                  )}
+                </div>
+                <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+                  {mix.map((m) => (
+                    <li key={m.label} className="flex items-center gap-1.5 text-xs">
+                      <span className={`h-2.5 w-2.5 rounded-sm ${m.color}`} />
+                      <span className="text-muted-foreground">{m.label}</span>
+                      <span className="font-semibold">{m.value}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
         </div>
 
-        <div className="space-y-4">
-          <Card label="Today's feed usage" value={`${d.todayFeed} bags`} />
-          <Card label="Expenses (7d)" value={naira(d.recentExpenses)} />
+        {/* Snapshot */}
+        <div className="space-y-4 rounded-2xl border border-border bg-card p-5">
+          <h2 className="text-sm font-semibold">Snapshot</h2>
+          <MiniStat
+            icon={Wallet}
+            chip="bg-primary/10 text-primary"
+            value={naira(d.expenseMonth)}
+            label="Expenses this month"
+          />
+          <MiniStat
+            icon={Egg}
+            chip="bg-gold/20 text-gold-foreground"
+            value={d.eggs7.toLocaleString("en-NG")}
+            label="Eggs collected (7 days)"
+          />
+          <MiniStat
+            icon={Wheat}
+            chip="bg-green-100 text-green-700"
+            value={`${d.feedToday} bags`}
+            label="Feed used today"
+          />
+          <Link
+            href="/farm/finance"
+            className="flex items-center justify-center gap-1 rounded-lg border border-border py-2 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+          >
+            View finance <ArrowRight size={14} />
+          </Link>
+        </div>
         </div>
       </section>
     </div>

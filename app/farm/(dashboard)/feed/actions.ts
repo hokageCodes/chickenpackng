@@ -91,6 +91,11 @@ export async function logFeedPurchase(
 
   const { category: cat, bags, costNGN, vendor, date } = parsed.data;
 
+  const existing = await prisma.feedStock.findUnique({ where: { category: cat } });
+  const newBags = (existing?.bags ?? 0) + bags;
+  // Capacity tracks the peak stock so the dashboard gauge has a "full" baseline.
+  const newCapacity = Math.max(existing?.capacityBags ?? 0, newBags);
+
   try {
     await prisma.$transaction([
       prisma.feedPurchase.create({
@@ -98,8 +103,8 @@ export async function logFeedPurchase(
       }),
       prisma.feedStock.upsert({
         where: { category: cat },
-        update: { bags: { increment: bags } },
-        create: { category: cat, bags },
+        update: { bags: newBags, capacityBags: newCapacity },
+        create: { category: cat, bags, capacityBags: bags },
       }),
     ]);
   } catch {
