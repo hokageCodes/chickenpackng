@@ -22,11 +22,11 @@ const NAV: NavItem[] = [
   { href: "/farm/poultry", label: "Poultry", icon: Bird, ready: true },
   { href: "/farm/fish", label: "Fish", icon: Fish, ready: true },
   { href: "/farm/feed", label: "Feed", icon: Wheat, ready: true },
-  { href: "/farm/medication", label: "Medication", icon: Pill, ready: false },
+  { href: "/farm/medication", label: "Medication", icon: Pill, ready: true },
   { href: "/farm/mortality", label: "Mortality", icon: Skull, ready: true },
-  { href: "/farm/harvest", label: "Harvest", icon: PackageOpen, ready: false },
+  { href: "/farm/harvest", label: "Harvest", icon: PackageOpen, ready: true },
   { href: "/farm/finance", label: "Finance", icon: Wallet, ready: true },
-  { href: "/farm/analytics", label: "Analytics", icon: BarChart3, ready: false },
+  { href: "/farm/analytics", label: "Analytics", icon: BarChart3, ready: true },
 ];
 
 function isActive(pathname: string, href: string) {
