@@ -126,7 +126,12 @@ export default async function FarmDashboard() {
           {greeting}
           {firstName ? `, ${firstName}` : ""}
         </h1>
-        <p className="text-sm text-muted-foreground">{date} at Sinum Agro</p>
+        <p className="text-sm text-muted-foreground">
+          {date} at{" "}
+          <span className="align-middle text-lg font-extrabold uppercase tracking-wide text-primary">
+            Sinum Agro
+          </span>
+        </p>
       </header>
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">

@@ -30,4 +30,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  callbacks: {
+    ...authConfig.callbacks,
+    // Refresh the session from the DB so name/email/role always reflect the
+    // current record (and a deleted user loses access) — not whatever was in
+    // the token at sign-in. Runs only in Node (server), never in middleware.
+    async session({ session, token }) {
+      if (!token.sub) return session;
+      const dbUser = await prisma.user.findUnique({ where: { id: token.sub } });
+      if (!dbUser) {
+        // Token points at a user that no longer exists — drop the identity.
+        return { expires: session.expires } as typeof session;
+      }
+      if (session.user) {
+        session.user.id = dbUser.id;
+        session.user.name = dbUser.name;
+        session.user.email = dbUser.email;
+        session.user.role = dbUser.role;
+      }
+      return session;
+    },
+  },
 });
