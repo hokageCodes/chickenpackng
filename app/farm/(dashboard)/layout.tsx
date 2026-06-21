@@ -1,18 +1,7 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Leaf, LogOut } from "lucide-react";
 import { auth, signOut } from "@/auth";
-
-const NAV = [
-  { href: "/farm", label: "Dashboard", ready: true },
-  { href: "/farm/poultry", label: "Poultry", ready: false },
-  { href: "/farm/fish", label: "Fish", ready: false },
-  { href: "/farm/feed", label: "Feed", ready: true },
-  { href: "/farm/medication", label: "Medication", ready: false },
-  { href: "/farm/mortality", label: "Mortality", ready: true },
-  { href: "/farm/harvest", label: "Harvest", ready: false },
-  { href: "/farm/finance", label: "Finance", ready: true },
-  { href: "/farm/analytics", label: "Analytics", ready: false },
-];
+import SidebarNav from "./SidebarNav";
 
 export default async function FarmDashboardLayout({
   children,
@@ -24,43 +13,44 @@ export default async function FarmDashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-neutral-50 text-neutral-900">
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-neutral-200 bg-white p-4 md:flex">
-        <div className="px-2 pb-4">
-          <p className="text-sm font-bold">Sinum Agro</p>
-          <p className="text-xs text-neutral-500">FarmOS</p>
+      <aside className="hidden w-72 shrink-0 flex-col border-r border-neutral-200 bg-white px-4 py-5 md:flex">
+        {/* Brand */}
+        <div className="flex items-center gap-3 px-1 pb-6">
+          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-600 text-white shadow-sm">
+            <Leaf size={22} strokeWidth={2} />
+          </div>
+          <div className="leading-tight">
+            <p className="text-[15px] font-bold text-neutral-900">Sinum Agro</p>
+            <p className="text-xs text-neutral-500">Food Technology</p>
+            <span className="mt-1 inline-block rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+              FarmOS
+            </span>
+          </div>
         </div>
-        <nav className="flex flex-1 flex-col gap-1">
-          {NAV.map((item) =>
-            item.ready ? (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="rounded-lg px-3 py-2 text-sm text-neutral-700 transition hover:bg-neutral-100"
-              >
-                {item.label}
-              </Link>
-            ) : (
-              <span
-                key={item.href}
-                className="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-neutral-400"
-              >
-                {item.label}
-                <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] uppercase">
-                  soon
-                </span>
-              </span>
-            )
-          )}
-        </nav>
-        <div className="border-t border-neutral-200 pt-3">
-          <p className="px-3 text-xs text-neutral-500">{session.user.email}</p>
+
+        <SidebarNav />
+
+        {/* User + sign out */}
+        <div className="mt-3 border-t border-neutral-200 pt-3">
+          <div className="flex items-center gap-3 px-1 pb-2">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-neutral-100 text-sm font-semibold text-neutral-600">
+              {(session.user.name ?? session.user.email ?? "?").charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0 leading-tight">
+              <p className="truncate text-sm font-medium text-neutral-800">
+                {session.user.name ?? "Owner"}
+              </p>
+              <p className="truncate text-xs text-neutral-500">{session.user.email}</p>
+            </div>
+          </div>
           <form
             action={async () => {
               "use server";
               await signOut({ redirectTo: "/farm/login" });
             }}
           >
-            <button className="mt-1 w-full rounded-lg px-3 py-2 text-left text-sm text-red-600 transition hover:bg-red-50">
+            <button className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-neutral-600 transition hover:bg-red-50 hover:text-red-600">
+              <LogOut size={18} strokeWidth={1.9} />
               Sign out
             </button>
           </form>
