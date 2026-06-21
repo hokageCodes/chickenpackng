@@ -44,7 +44,7 @@ export default function MobileNav({ footer }: { footer: React.ReactNode }) {
   return (
     <div className="md:hidden">
       {/* Top bar: logo left, hamburger right */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-card px-4 py-3">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-card px-2 py-3">
         <Brand />
         <button
           onClick={() => setOpen(true)}
@@ -58,7 +58,7 @@ export default function MobileNav({ footer }: { footer: React.ReactNode }) {
       {/* Full-screen nav (only mounted while open) */}
       {open && (
         <div className="fixed inset-0 z-50 flex flex-col bg-card duration-200 animate-in fade-in slide-in-from-left-2">
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div className="flex items-center justify-between border-b border-border px-2 py-3">
             <Brand />
             <button
               onClick={() => setOpen(false)}
