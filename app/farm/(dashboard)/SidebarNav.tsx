@@ -19,7 +19,7 @@ type NavItem = { href: string; label: string; icon: LucideIcon; ready: boolean }
 
 const NAV: NavItem[] = [
   { href: "/farm", label: "Dashboard", icon: LayoutDashboard, ready: true },
-  { href: "/farm/poultry", label: "Poultry", icon: Bird, ready: false },
+  { href: "/farm/poultry", label: "Poultry", icon: Bird, ready: true },
   { href: "/farm/fish", label: "Fish", icon: Fish, ready: false },
   { href: "/farm/feed", label: "Feed", icon: Wheat, ready: true },
   { href: "/farm/medication", label: "Medication", icon: Pill, ready: false },
