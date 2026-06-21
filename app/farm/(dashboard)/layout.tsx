@@ -12,17 +12,17 @@ export default async function FarmDashboardLayout({
   if (!session?.user) redirect("/farm/login");
 
   return (
-    <div className="flex min-h-screen bg-neutral-50 text-neutral-900">
-      <aside className="hidden w-72 shrink-0 flex-col border-r border-neutral-200 bg-white px-4 py-5 md:flex">
+    <div className="flex min-h-screen bg-background text-foreground">
+      <aside className="hidden w-72 shrink-0 flex-col border-r border-border bg-card px-4 py-5 md:flex">
         {/* Brand */}
         <div className="flex items-center gap-3 px-1 pb-6">
-          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-600 text-white shadow-sm">
+          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground shadow-sm">
             <Leaf size={22} strokeWidth={2} />
           </div>
           <div className="leading-tight">
-            <p className="text-[15px] font-bold text-neutral-900">Sinum Agro</p>
-            <p className="text-xs text-neutral-500">Food Technology</p>
-            <span className="mt-1 inline-block rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+            <p className="text-[15px] font-bold text-foreground">Sinum Agro</p>
+            <p className="text-xs text-muted-foreground">Food Technology</p>
+            <span className="mt-1 inline-block rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
               FarmOS
             </span>
           </div>
@@ -31,16 +31,16 @@ export default async function FarmDashboardLayout({
         <SidebarNav />
 
         {/* User + sign out */}
-        <div className="mt-3 border-t border-neutral-200 pt-3">
+        <div className="mt-3 border-t border-border pt-3">
           <div className="flex items-center gap-3 px-1 pb-2">
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-neutral-100 text-sm font-semibold text-neutral-600">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-sm font-semibold text-muted-foreground">
               {(session.user.name ?? session.user.email ?? "?").charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 leading-tight">
-              <p className="truncate text-sm font-medium text-neutral-800">
+              <p className="truncate text-sm font-medium text-foreground">
                 {session.user.name ?? "Owner"}
               </p>
-              <p className="truncate text-xs text-neutral-500">{session.user.email}</p>
+              <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
             </div>
           </div>
           <form
@@ -49,7 +49,7 @@ export default async function FarmDashboardLayout({
               await signOut({ redirectTo: "/farm/login" });
             }}
           >
-            <button className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-neutral-600 transition hover:bg-red-50 hover:text-red-600">
+            <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive">
               <LogOut size={18} strokeWidth={1.9} />
               Sign out
             </button>
@@ -57,7 +57,7 @@ export default async function FarmDashboardLayout({
         </div>
       </aside>
 
-      <main className="flex-1 p-6 md:p-8">{children}</main>
+      <main className="flex-1 bg-muted/30 p-6 md:p-8">{children}</main>
     </div>
   );
 }
