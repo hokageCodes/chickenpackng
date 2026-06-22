@@ -333,6 +333,7 @@ model Order {
   note           String?
   placedAt       DateTime    @default(now())
   items          OrderItem[]
+  payments       Payment[]
 }
 
 model OrderItem {
@@ -345,4 +346,28 @@ model OrderItem {
   qty          Float
   unitPriceNGN Decimal  @db.Decimal(12, 2)
   lineTotalNGN Decimal  @db.Decimal(12, 2)
+}
+
+// ── Payments (Paystack) ─────────────────────────────────────
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+  ABANDONED
+}
+
+model Payment {
+  id           String        @id @default(cuid())
+  reference    String        @unique // Paystack transaction reference
+  provider     String        @default("paystack")
+  amountNGN    Decimal       @db.Decimal(12, 2)
+  status       PaymentStatus @default(PENDING)
+  channel      String? // card, bank_transfer, ussd…
+  customerName String?
+  email        String?
+  orderId      String?
+  order        Order?        @relation(fields: [orderId], references: [id])
+  paidAt       DateTime?
+  createdAt    DateTime      @default(now())
 }
