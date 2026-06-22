@@ -113,6 +113,7 @@ model FeedPurchase {
   date        DateTime
   createdById String
   createdAt   DateTime     @default(now())
+  expense     Expense? // auto-created FEED expense for this purchase
 }
 
 model FeedUsage {
@@ -247,12 +248,14 @@ model Expense {
   date        DateTime
   vendor      String?
   notes       String?
-  groupId     String?
-  group       AnimalGroup?    @relation(fields: [groupId], references: [id])
-  pondId      String?
-  pond        Pond?           @relation(fields: [pondId], references: [id])
-  createdById String
-  createdAt   DateTime        @default(now())
+  groupId        String?
+  group          AnimalGroup?    @relation(fields: [groupId], references: [id])
+  pondId         String?
+  pond           Pond?           @relation(fields: [pondId], references: [id])
+  feedPurchaseId String?         @unique
+  feedPurchase   FeedPurchase?   @relation(fields: [feedPurchaseId], references: [id], onDelete: Cascade)
+  createdById    String
+  createdAt      DateTime        @default(now())
 }
 
 model Revenue {
