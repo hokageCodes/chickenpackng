@@ -311,6 +311,7 @@ model Product {
   step            Float       @default(1) // increment (e.g. 0.5 for fish)
   createdAt       DateTime    @default(now())
   orderItems      OrderItem[]
+  reviews         Review[]
 }
 
 enum OrderStatus {
@@ -403,4 +404,16 @@ model Discount {
   expiresAt   DateTime?
   active      Boolean      @default(true)
   createdAt   DateTime     @default(now())
+}
+
+// ── Reviews ─────────────────────────────────────────────────
+model Review {
+  id           String   @id @default(cuid())
+  productId    String?
+  product      Product? @relation(fields: [productId], references: [id])
+  customerName String
+  rating       Int // 1–5
+  body         String?
+  approved     Boolean  @default(false)
+  createdAt    DateTime @default(now())
 }
