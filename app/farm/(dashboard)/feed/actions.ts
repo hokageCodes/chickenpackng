@@ -4,14 +4,16 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
+import { kgToBags, bagsToKg, fmtNum } from "./units";
 
 export type FeedState = { error?: string; success?: string };
 
 const category = z.enum(["BROILER", "LAYER", "FISH"]);
 
+// Usage is entered in kg (1 bag = 25 kg) and stored as bags.
 const usageSchema = z.object({
   category,
-  bags: z.coerce.number().positive("Bags must be greater than 0"),
+  kg: z.coerce.number().positive("Kg must be greater than 0"),
   date: z.string().min(1, "Date is required"),
   target: z.string().optional(),
 });
@@ -33,17 +35,18 @@ export async function logFeedUsage(
 
   const parsed = usageSchema.safeParse({
     category: formData.get("category"),
-    bags: formData.get("bags"),
+    kg: formData.get("kg"),
     date: formData.get("date"),
     target: formData.get("target"),
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
 
-  const { category: cat, bags, date, target } = parsed.data;
+  const { category: cat, kg, date, target } = parsed.data;
+  const bags = kgToBags(kg);
   const stock = await prisma.feedStock.findUnique({ where: { category: cat } });
-  const current = stock?.bags ?? 0;
-  if (bags > current) {
-    return { error: `Only ${current} bag(s) of ${cat.toLowerCase()} feed in stock.` };
+  const currentKg = bagsToKg(stock?.bags ?? 0);
+  if (kg > currentKg) {
+    return { error: `Only ${fmtNum(currentKg)} kg of ${cat.toLowerCase()} feed in stock.` };
   }
 
   let groupId: string | undefined;
@@ -70,7 +73,7 @@ export async function logFeedUsage(
 
   revalidatePath("/farm/feed");
   revalidatePath("/farm");
-  return { success: `Logged ${bags} bag(s) used.` };
+  return { success: `Logged ${fmtNum(kg)} kg used.` };
 }
 
 export async function logFeedPurchase(
@@ -119,7 +122,7 @@ export async function logFeedPurchase(
 /* ---------- edit / delete (with stock reversal) ---------- */
 
 const editUsageSchema = z.object({
-  bags: z.coerce.number().positive("Bags must be greater than 0"),
+  kg: z.coerce.number().positive("Kg must be greater than 0"),
   date: z.string().min(1, "Date is required"),
   target: z.string().optional(),
 });
@@ -140,20 +143,21 @@ export async function updateFeedUsage(
 
   const id = String(formData.get("id") ?? "");
   const parsed = editUsageSchema.safeParse({
-    bags: formData.get("bags"),
+    kg: formData.get("kg"),
     date: formData.get("date"),
     target: formData.get("target"),
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
 
-  const { bags, date, target } = parsed.data;
+  const { kg, date, target } = parsed.data;
+  const bags = kgToBags(kg);
   const old = await prisma.feedUsage.findUnique({ where: { id } });
   if (!old) return { error: "Entry not found." };
 
   const stock = await prisma.feedStock.findUnique({ where: { category: old.category } });
-  const available = (stock?.bags ?? 0) + old.bags; // reverse the old usage first
-  if (bags > available) {
-    return { error: `Only ${available} bag(s) of ${old.category.toLowerCase()} feed available.` };
+  const availableKg = bagsToKg((stock?.bags ?? 0) + old.bags); // reverse the old usage first
+  if (kg > availableKg) {
+    return { error: `Only ${fmtNum(availableKg)} kg of ${old.category.toLowerCase()} feed available.` };
   }
 
   let groupId: string | null = null;
@@ -172,7 +176,7 @@ export async function updateFeedUsage(
       }),
       prisma.feedStock.update({
         where: { category: old.category },
-        data: { bags: available - bags },
+        data: { bags: (stock?.bags ?? 0) + old.bags - bags },
       }),
     ]);
   } catch {
@@ -256,4 +260,51 @@ export async function deleteFeedEntry(kind: "usage" | "purchase", id: string) {
 
   revalidatePath("/farm/feed");
   revalidatePath("/farm");
+}
+
+/* ---------- direct stock adjustment (stock-take / correction) ---------- */
+
+const adjustSchema = z.object({
+  category,
+  kg: z.coerce.number().nonnegative("Cannot be negative"),
+  capacityKg: z.coerce.number().nonnegative().optional(),
+  lowKg: z.coerce.number().nonnegative().optional(),
+});
+
+export async function setFeedStock(_prev: FeedState, formData: FormData): Promise<FeedState> {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "Not authenticated." };
+
+  const parsed = adjustSchema.safeParse({
+    category: formData.get("category"),
+    kg: formData.get("kg"),
+    capacityKg: formData.get("capacityKg"),
+    lowKg: formData.get("lowKg"),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+
+  const { category: cat, kg, capacityKg, lowKg } = parsed.data;
+  const bags = kgToBags(kg);
+  const existing = await prisma.feedStock.findUnique({ where: { category: cat } });
+
+  // Capacity (gauge "full") must be at least the current amount.
+  const capacityBags = Math.max(
+    bags,
+    capacityKg != null ? kgToBags(capacityKg) : (existing?.capacityBags ?? bags)
+  );
+  const lowThreshold = lowKg != null ? kgToBags(lowKg) : (existing?.lowThreshold ?? 2);
+
+  try {
+    await prisma.feedStock.upsert({
+      where: { category: cat },
+      update: { bags, capacityBags, lowThreshold },
+      create: { category: cat, bags, capacityBags, lowThreshold },
+    });
+  } catch {
+    return { error: "Could not update stock. Please try again." };
+  }
+
+  revalidatePath("/farm/feed");
+  revalidatePath("/farm");
+  return { success: `${cat.charAt(0) + cat.slice(1).toLowerCase()} stock set to ${fmtNum(kg)} kg.` };
 }

@@ -1,10 +1,9 @@
-import { Wheat } from "lucide-react";
 import { prisma } from "@/lib/db";
 import FeedEntries, { type TargetOption, type Entry } from "./FeedEntries";
+import FeedStockCards, { type Stock } from "./FeedStockCards";
 
 export const dynamic = "force-dynamic";
 
-const title = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 const fmtDate = (d: Date) =>
   new Date(d).toLocaleDateString("en-NG", { day: "2-digit", month: "short" });
 const naira = (n: number) => "₦" + n.toLocaleString("en-NG", { maximumFractionDigits: 2 });
@@ -56,11 +55,18 @@ async function getData() {
     .slice(0, 60)
     .map(({ _ts, ...e }) => e);
 
-  return { stocks, targets, entries };
+  const stockCards: Stock[] = stocks.map((s) => ({
+    category: s.category,
+    bags: s.bags,
+    capacityBags: s.capacityBags,
+    lowThreshold: s.lowThreshold,
+  }));
+
+  return { stockCards, targets, entries };
 }
 
 export default async function FeedPage() {
-  const { stocks, targets, entries } = await getData();
+  const { stockCards, targets, entries } = await getData();
 
   return (
     <div className="space-y-6">
@@ -69,54 +75,7 @@ export default async function FeedPage() {
         <p className="text-sm text-muted-foreground">Track daily usage and purchases</p>
       </header>
 
-      <section>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-          {stocks.map((s) => {
-            const cap = s.capacityBags > 0 ? s.capacityBags : s.bags;
-            const pct = cap > 0 ? (s.bags / cap) * 100 : 0;
-            const chip =
-              s.category === "BROILER"
-                ? "bg-primary/10 text-primary"
-                : s.category === "LAYER"
-                  ? "bg-gold/20 text-gold-foreground"
-                  : "bg-sky-100 text-sky-600";
-            const tone =
-              pct > 50
-                ? "bg-green-50 text-green-700"
-                : pct > 25
-                  ? "bg-amber-50 text-amber-700"
-                  : "bg-red-50 text-red-600";
-            return (
-              <div
-                key={s.category}
-                className="flex flex-col rounded-2xl border border-border bg-card p-4 sm:p-5"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="text-3xl font-extrabold leading-none tracking-tight sm:text-4xl">
-                      {s.bags}
-                    </p>
-                    <p className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground sm:text-xs">
-                      {title(s.category)} feed
-                    </p>
-                  </div>
-                  <span
-                    className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl sm:h-12 sm:w-12 ${chip}`}
-                  >
-                    <Wheat size={22} />
-                  </span>
-                </div>
-                <div
-                  className={`mt-3 flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-semibold sm:mt-4 sm:gap-2 sm:px-3 sm:text-xs ${tone}`}
-                >
-                  <span className="truncate">{Math.round(pct)}% left</span>
-                  <span className="ml-auto shrink-0">of {cap} bags</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      <FeedStockCards stocks={stockCards} />
 
       <FeedEntries entries={entries} targets={targets} />
     </div>

@@ -11,6 +11,7 @@ import {
   deleteFeedEntry,
   type FeedState,
 } from "./actions";
+import { bagsToKg, fmtNum } from "./units";
 
 export type TargetOption = { value: string; label: string };
 export type Entry = {
@@ -97,8 +98,17 @@ function UsageForm({
           <CategorySelect />
         )}
         <label className="block">
-          <span className={labelClass}>Bags used</span>
-          <input type="number" name="bags" step="0.1" min="0.1" required defaultValue={initial?.bags} placeholder="0.5" className={inputClass} />
+          <span className={labelClass}>Kg used</span>
+          <input
+            type="number"
+            name="kg"
+            step="0.5"
+            min="0.5"
+            required
+            defaultValue={initial ? fmtNum(bagsToKg(initial.bags)) : undefined}
+            placeholder="12.5"
+            className={inputClass}
+          />
         </label>
         <label className="block">
           <span className={labelClass}>Date</span>
@@ -153,7 +163,7 @@ function PurchaseForm({ initial, onDone }: { initial?: Entry; onDone: () => void
           <CategorySelect />
         )}
         <label className="block">
-          <span className={labelClass}>Bags purchased</span>
+          <span className={labelClass}>Bags purchased (25 kg each)</span>
           <input type="number" name="bags" step="0.1" min="0.1" required defaultValue={initial?.bags} placeholder="10" className={inputClass} />
         </label>
         <label className="block">
@@ -364,8 +374,10 @@ export default function FeedEntries({
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">
-                  {e.bags} bag{e.bags !== 1 ? "s" : ""}{" "}
-                  {e.kind === "purchase" ? "bought" : "used"} · {title(e.category)}
+                  {e.kind === "purchase"
+                    ? `${fmtNum(e.bags)} bag${e.bags !== 1 ? "s" : ""} bought`
+                    : `${fmtNum(bagsToKg(e.bags))} kg used`}{" "}
+                  · {title(e.category)}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
                   {e.detail} · {e.dateLabel}
