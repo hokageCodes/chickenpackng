@@ -78,7 +78,7 @@ export default async function SettingsPage() {
             </p>
           )}
           <Link
-            href="/admin/payments"
+            href="/shop/payments"
             className="mt-3 inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
           >
             Open Payments <ArrowRight size={14} />

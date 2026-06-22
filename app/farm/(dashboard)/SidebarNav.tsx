@@ -28,7 +28,7 @@ const NAV: NavItem[] = [
   { href: "/farm/harvest", label: "Harvest", icon: PackageOpen, ready: true },
   { href: "/farm/finance", label: "Finance", icon: Wallet, ready: true },
   { href: "/farm/analytics", label: "Analytics", icon: BarChart3, ready: true },
-  { href: "/admin", label: "Commerce Admin", icon: ShoppingBag, ready: true },
+  { href: "/shop", label: "Commerce Admin", icon: ShoppingBag, ready: true },
 ];
 
 function isActive(pathname: string, href: string) {

@@ -27,7 +27,7 @@ export default async function AdminDashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  if (!session?.user) redirect("/admin/login");
+  if (!session?.user) redirect("/shop/login");
 
   const initial = (session.user.name ?? session.user.email ?? "?")
     .charAt(0)
@@ -49,7 +49,7 @@ export default async function AdminDashboardLayout({
       <form
         action={async () => {
           "use server";
-          await signOut({ redirectTo: "/admin/login" });
+          await signOut({ redirectTo: "/shop/login" });
         }}
       >
         <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700">

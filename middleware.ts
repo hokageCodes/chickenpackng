@@ -5,5 +5,5 @@ export const { auth: middleware } = NextAuth(authConfig);
 
 export const config = {
   // Protect the farm and commerce admin routes; skip Next internals and static assets.
-  matcher: ["/farm/:path*", "/admin/:path*", "/admin"],
+  matcher: ["/farm/:path*", "/shop/:path*", "/shop"],
 };

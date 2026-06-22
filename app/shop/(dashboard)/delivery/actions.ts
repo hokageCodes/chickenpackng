@@ -8,8 +8,8 @@ import { auth } from "@/auth";
 export type ZoneState = { error?: string; success?: string };
 
 function done() {
-  revalidatePath("/admin/delivery");
-  revalidatePath("/admin");
+  revalidatePath("/shop/delivery");
+  revalidatePath("/shop");
 }
 
 const schema = z.object({
