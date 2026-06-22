@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
+import { bagsToKg, fmtNum } from "./feed/units";
 
 export const dynamic = "force-dynamic";
 
@@ -148,7 +149,7 @@ function FeedStrip({ feed }: { feed: FeedInfo }) {
       className={`mt-3 flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-semibold sm:mt-4 sm:gap-2 sm:px-3 sm:text-xs ${tone}`}
     >
       <Wheat size={13} className="shrink-0" />
-      <span className="truncate">{feed.bags} bags left</span>
+      <span className="truncate">{fmtNum(bagsToKg(feed.bags))} kg left</span>
       <span className="ml-auto shrink-0">{Math.round(feed.pct)}%</span>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import PasswordInput from "@/components/PasswordInput";
 import { authenticate } from "./actions";
 
 export default function FarmLoginPage() {
@@ -35,9 +36,8 @@ export default function FarmLoginPage() {
             <label className="mb-1 block text-sm font-medium text-neutral-700">
               Password
             </label>
-            <input
+            <PasswordInput
               name="password"
-              type="password"
               required
               autoComplete="current-password"
               className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary"
