@@ -20,20 +20,20 @@ import {
 type NavItem = { href: string; label: string; icon: LucideIcon; ready: boolean };
 
 const NAV: NavItem[] = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, ready: true },
-  { href: "/admin/orders", label: "Orders", icon: ShoppingCart, ready: true },
-  { href: "/admin/products", label: "Products", icon: Package, ready: true },
-  { href: "/admin/customers", label: "Customers", icon: Users, ready: true },
-  { href: "/admin/payments", label: "Payments", icon: CreditCard, ready: true },
-  { href: "/admin/delivery", label: "Delivery", icon: Truck, ready: true },
-  { href: "/admin/discounts", label: "Discounts", icon: Percent, ready: true },
-  { href: "/admin/reviews", label: "Reviews", icon: Star, ready: true },
-  { href: "/admin/reports", label: "Reports", icon: BarChart3, ready: true },
-  { href: "/admin/settings", label: "Settings", icon: Settings, ready: true },
+  { href: "/shop", label: "Dashboard", icon: LayoutDashboard, ready: true },
+  { href: "/shop/orders", label: "Orders", icon: ShoppingCart, ready: true },
+  { href: "/shop/products", label: "Products", icon: Package, ready: true },
+  { href: "/shop/customers", label: "Customers", icon: Users, ready: true },
+  { href: "/shop/payments", label: "Payments", icon: CreditCard, ready: true },
+  { href: "/shop/delivery", label: "Delivery", icon: Truck, ready: true },
+  { href: "/shop/discounts", label: "Discounts", icon: Percent, ready: true },
+  { href: "/shop/reviews", label: "Reviews", icon: Star, ready: true },
+  { href: "/shop/reports", label: "Reports", icon: BarChart3, ready: true },
+  { href: "/shop/settings", label: "Settings", icon: Settings, ready: true },
 ];
 
 function isActive(pathname: string, href: string) {
-  if (href === "/admin") return pathname === "/admin";
+  if (href === "/shop") return pathname === "/shop";
   return pathname === href || pathname.startsWith(href + "/");
 }
 

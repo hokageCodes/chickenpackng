@@ -50,7 +50,7 @@ export async function updateSettings(_prev: SettingsState, formData: FormData): 
     return { error: "Could not save. Please try again." };
   }
 
-  revalidatePath("/admin/settings");
-  revalidatePath("/admin");
+  revalidatePath("/shop/settings");
+  revalidatePath("/shop");
   return { success: "Settings saved." };
 }

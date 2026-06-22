@@ -7,8 +7,8 @@ import { auth } from "@/auth";
 export type ProductState = { error?: string; success?: string };
 
 function done() {
-  revalidatePath("/admin/products");
-  revalidatePath("/admin");
+  revalidatePath("/shop/products");
+  revalidatePath("/shop");
 }
 
 const slugify = (s: string) =>

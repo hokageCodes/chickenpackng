@@ -14,8 +14,8 @@ const STATUSES = [
 type OrderStatus = (typeof STATUSES)[number];
 
 function done() {
-  revalidatePath("/admin/orders");
-  revalidatePath("/admin");
+  revalidatePath("/shop/orders");
+  revalidatePath("/shop");
 }
 
 export async function updateOrderStatus(id: string, status: string) {

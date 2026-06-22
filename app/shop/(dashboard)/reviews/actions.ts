@@ -8,8 +8,8 @@ import { auth } from "@/auth";
 export type ReviewState = { error?: string; success?: string };
 
 function done() {
-  revalidatePath("/admin/reviews");
-  revalidatePath("/admin");
+  revalidatePath("/shop/reviews");
+  revalidatePath("/shop");
 }
 
 const schema = z.object({
