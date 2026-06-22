@@ -28,8 +28,8 @@ const NAV: NavItem[] = [
   { href: "/admin/delivery", label: "Delivery", icon: Truck, ready: true },
   { href: "/admin/discounts", label: "Discounts", icon: Percent, ready: true },
   { href: "/admin/reviews", label: "Reviews", icon: Star, ready: true },
-  { href: "/admin/reports", label: "Reports", icon: BarChart3, ready: false },
-  { href: "/admin/settings", label: "Settings", icon: Settings, ready: false },
+  { href: "/admin/reports", label: "Reports", icon: BarChart3, ready: true },
+  { href: "/admin/settings", label: "Settings", icon: Settings, ready: true },
 ];
 
 function isActive(pathname: string, href: string) {

@@ -417,3 +417,15 @@ model Review {
   approved     Boolean  @default(false)
   createdAt    DateTime @default(now())
 }
+
+// ── Store settings (single row) ─────────────────────────────
+model StoreSetting {
+  id           String   @id @default("singleton")
+  storeName    String   @default("Protein Pack")
+  supportEmail String?
+  supportPhone String?
+  whatsapp     String?
+  address      String?
+  currency     String   @default("NGN")
+  updatedAt    DateTime @updatedAt
+}

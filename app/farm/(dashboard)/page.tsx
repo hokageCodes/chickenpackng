@@ -417,6 +417,12 @@ export default async function FarmDashboard() {
           >
             View finance <ArrowRight size={14} />
           </Link>
+          <Link
+            href="/admin"
+            className="flex items-center justify-center gap-1 rounded-lg border border-primary bg-primary/10 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+          >
+            Open Commerce Admin <ArrowRight size={14} />
+          </Link>
         </div>
         </div>
       </section>
