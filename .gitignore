@@ -45,3 +45,6 @@ next-env.d.ts
 
 # local nosync build dir (iCloud-excluded)
 /.next.nosync
+
+# runtime image uploads (dev fallback)
+/public/uploads

@@ -269,3 +269,163 @@ model Revenue {
   createdById String
   createdAt   DateTime      @default(now())
 }
+
+// ── Commerce (Protein Pack storefront) ──────────────────────
+enum CustomerType {
+  RETAIL
+  DISTRIBUTOR
+  AGENT
+}
+
+model Customer {
+  id            String        @id @default(cuid())
+  name          String
+  type          CustomerType  @default(RETAIL) // effective role
+  requestedType CustomerType? // pending upgrade request (set from storefront), null when none
+  phone         String?
+  email         String?
+  address       String?
+  createdAt     DateTime      @default(now())
+  orders        Order[]
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  products Product[]
+}
+
+model Product {
+  id              String      @id @default(cuid())
+  name            String
+  slug            String      @unique
+  categoryId      String?
+  category        Category?   @relation(fields: [categoryId], references: [id])
+  description     String?
+  image           String?
+  published       Boolean     @default(true)
+  unit            String      @default("kg") // "kg" | "crate"
+  pricePerUnitNGN Decimal     @default(0) @db.Decimal(12, 2)
+  minQty          Float       @default(1) // minimum order quantity
+  step            Float       @default(1) // increment (e.g. 0.5 for fish)
+  createdAt       DateTime    @default(now())
+  orderItems      OrderItem[]
+  reviews         Review[]
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  number         Int         @unique @default(autoincrement())
+  customerId     String
+  customer       Customer    @relation(fields: [customerId], references: [id])
+  status         OrderStatus @default(PENDING)
+  subtotalNGN    Decimal     @db.Decimal(12, 2)
+  deliveryFeeNGN Decimal     @db.Decimal(12, 2) @default(0)
+  totalNGN       Decimal     @db.Decimal(12, 2)
+  note           String?
+  placedAt       DateTime    @default(now())
+  items          OrderItem[]
+  payments       Payment[]
+}
+
+model OrderItem {
+  id           String   @id @default(cuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      Product? @relation(fields: [productId], references: [id])
+  name         String // snapshot of product name + unit
+  qty          Float
+  unitPriceNGN Decimal  @db.Decimal(12, 2)
+  lineTotalNGN Decimal  @db.Decimal(12, 2)
+}
+
+// ── Payments (Paystack) ─────────────────────────────────────
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+  ABANDONED
+}
+
+model Payment {
+  id           String        @id @default(cuid())
+  reference    String        @unique // Paystack transaction reference
+  provider     String        @default("paystack")
+  amountNGN    Decimal       @db.Decimal(12, 2)
+  status       PaymentStatus @default(PENDING)
+  channel      String? // card, bank_transfer, ussd…
+  customerName String?
+  email        String?
+  orderId      String?
+  order        Order?        @relation(fields: [orderId], references: [id])
+  paidAt       DateTime?
+  createdAt    DateTime      @default(now())
+}
+
+// ── Delivery zones ──────────────────────────────────────────
+model DeliveryZone {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  areas       String? // free-text list of covered areas
+  feeNGN      Decimal  @default(0) @db.Decimal(12, 2)
+  minOrderNGN Decimal  @default(0) @db.Decimal(12, 2)
+  eta         String? // "Same day", "1-2 days"
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+// ── Discounts / coupons ─────────────────────────────────────
+enum DiscountType {
+  PERCENT
+  FIXED
+}
+
+model Discount {
+  id          String       @id @default(cuid())
+  code        String       @unique
+  description String?
+  type        DiscountType @default(PERCENT)
+  value       Decimal      @db.Decimal(12, 2) // percent (e.g. 10) or ₦ amount
+  minOrderNGN Decimal      @default(0) @db.Decimal(12, 2)
+  maxUses     Int? // null = unlimited
+  usedCount   Int          @default(0)
+  startsAt    DateTime?
+  expiresAt   DateTime?
+  active      Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+}
+
+// ── Reviews ─────────────────────────────────────────────────
+model Review {
+  id           String   @id @default(cuid())
+  productId    String?
+  product      Product? @relation(fields: [productId], references: [id])
+  customerName String
+  rating       Int // 1–5
+  body         String?
+  approved     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+// ── Store settings (single row) ─────────────────────────────
+model StoreSetting {
+  id           String   @id @default("singleton")
+  storeName    String   @default("Protein Pack")
+  supportEmail String?
+  supportPhone String?
+  whatsapp     String?
+  address      String?
+  currency     String   @default("NGN")
+  updatedAt    DateTime @updatedAt
+}
