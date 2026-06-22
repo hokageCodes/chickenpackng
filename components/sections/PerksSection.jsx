@@ -1,12 +1,12 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Wallet, Truck, BadgeCheck, Gift } from 'lucide-react';
+import { CreditCard, Truck, BadgeCheck, Gift } from 'lucide-react';
 
 const PERKS = [
   {
-    icon: Wallet,
-    title: 'Cash on Delivery',
-    description: 'Pay with cash when your order arrives — no card needed.',
+    icon: CreditCard,
+    title: 'Multiple Payment Options',
+    description: 'Pay your way — bank transfer, pay-on-delivery cash, or online with Paystack.',
   },
   {
     icon: Truck,
