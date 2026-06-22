@@ -1,11 +1,10 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X, Pencil, Trash2, Package, ImageIcon } from "lucide-react";
+import { Plus, X, Pencil, Trash2, ImageIcon, Upload, ChevronLeft, ChevronRight } from "lucide-react";
 import { createProduct, updateProduct, deleteProduct, type ProductState } from "./actions";
 
-export type Variant = { label: string; price: number };
 export type Product = {
   id: string;
   name: string;
@@ -13,17 +12,14 @@ export type Product = {
   description: string;
   image: string;
   published: boolean;
-  variants: Variant[];
+  unit: string;
+  price: number;
+  minQty: number;
+  step: number;
 };
 
 const naira = (n: number) => "₦" + n.toLocaleString("en-NG", { maximumFractionDigits: 0 });
-const priceRange = (vs: Variant[]) => {
-  if (vs.length === 0) return "—";
-  const prices = vs.map((v) => v.price);
-  const min = Math.min(...prices);
-  const max = Math.max(...prices);
-  return min === max ? naira(min) : `${naira(min)} – ${naira(max)}`;
-};
+const fmtQty = (n: number) => (Number.isInteger(n) ? n.toString() : n.toString());
 
 const inputClass =
   "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary";
@@ -31,27 +27,19 @@ const labelClass = "mb-1 block text-xs font-medium text-muted-foreground";
 const submitClass =
   "w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60";
 
-function Thumb({ src, name }: { src: string; name: string }) {
+function Thumb({ src, name, size = "h-10 w-10" }: { src: string; name: string; size?: string }) {
   if (!src) {
     return (
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+      <span className={`grid ${size} shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground`}>
         <ImageIcon size={16} />
       </span>
     );
   }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={name} className="h-10 w-10 shrink-0 rounded-lg object-cover" />;
+  return <img src={src} alt={name} className={`${size} shrink-0 rounded-lg border border-border object-cover`} />;
 }
 
-function Modal({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
+function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -83,9 +71,8 @@ function ProductForm({ initial, onDone }: { initial?: Product; onDone: () => voi
     isEdit ? updateProduct : createProduct,
     {}
   );
-  const [variants, setVariants] = useState<Variant[]>(
-    initial?.variants?.length ? initial.variants : [{ label: "", price: 0 }]
-  );
+  const [preview, setPreview] = useState<string>(initial?.image ?? "");
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (state.success) {
@@ -94,82 +81,77 @@ function ProductForm({ initial, onDone }: { initial?: Product; onDone: () => voi
     }
   }, [state.success, onDone, router]);
 
-  const setRow = (i: number, field: keyof Variant, val: string) =>
-    setVariants((v) => v.map((r, idx) => (idx === i ? { ...r, [field]: field === "price" ? Number(val) || 0 : val } : r)));
+  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) setPreview(URL.createObjectURL(file));
+  }
 
   return (
     <form action={action} className="space-y-3">
       {isEdit && <input type="hidden" name="id" value={initial!.id} />}
-      <input type="hidden" name="variants" value={JSON.stringify(variants)} />
+      {/* keep existing image path unless a new file is chosen */}
+      <input type="hidden" name="image" value={initial?.image ?? ""} />
+
+      {/* Image */}
+      <div>
+        <span className={labelClass}>Image</span>
+        <div className="flex items-center gap-3">
+          <Thumb src={preview} name="preview" size="h-16 w-16" />
+          <div>
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-accent"
+            >
+              <Upload size={15} /> {preview ? "Change image" : "Upload image"}
+            </button>
+            <p className="mt-1 text-[11px] text-muted-foreground">JPG/PNG/WebP, up to ~8MB</p>
+          </div>
+          <input ref={fileRef} type="file" name="imageFile" accept="image/*" onChange={onFile} className="hidden" />
+        </div>
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block sm:col-span-2">
           <span className={labelClass}>Product name</span>
-          <input name="name" required defaultValue={initial?.name} placeholder="Full Chicken" className={inputClass} />
+          <input name="name" required defaultValue={initial?.name} placeholder="Chicken Laps" className={inputClass} />
         </label>
         <label className="block">
           <span className={labelClass}>Category</span>
-          <input name="category" defaultValue={initial?.category} placeholder="Chicken" className={inputClass} />
+          <input name="category" defaultValue={initial?.category} placeholder="Frozen Chicken" className={inputClass} />
         </label>
         <label className="block">
-          <span className={labelClass}>Image path / URL</span>
-          <input name="image" defaultValue={initial?.image} placeholder="/assets/laps.jpg" className={inputClass} />
+          <span className={labelClass}>Unit</span>
+          <select name="unit" defaultValue={initial?.unit ?? "kg"} className={inputClass}>
+            <option value="kg">per kg</option>
+            <option value="crate">per crate</option>
+            <option value="piece">per piece</option>
+          </select>
+        </label>
+        <label className="block">
+          <span className={labelClass}>Price per unit (₦)</span>
+          <input type="number" name="price" min={0} required defaultValue={initial?.price ?? 0} placeholder="5500" className={inputClass} />
+        </label>
+        <label className="block">
+          <span className={labelClass}>Minimum order</span>
+          <input type="number" name="minQty" min={0} step="0.5" required defaultValue={initial?.minQty ?? 1} placeholder="1" className={inputClass} />
+        </label>
+        <label className="block">
+          <span className={labelClass}>Step (increment)</span>
+          <input type="number" name="step" min={0.1} step="0.1" required defaultValue={initial?.step ?? 1} placeholder="1" className={inputClass} />
+        </label>
+        <label className="block">
+          <span className={labelClass}>&nbsp;</span>
+          <label className="flex h-[38px] items-center gap-2 rounded-lg border border-border px-3 text-sm">
+            <input type="checkbox" name="published" defaultChecked={initial ? initial.published : true} className="h-4 w-4 rounded border-border" />
+            Published
+          </label>
         </label>
         <label className="block sm:col-span-2">
           <span className={labelClass}>Description</span>
           <textarea name="description" rows={2} defaultValue={initial?.description} className={inputClass} />
         </label>
       </div>
-
-      {/* Variants */}
-      <div>
-        <div className="mb-1 flex items-center justify-between">
-          <span className={labelClass}>Variants (size &amp; price)</span>
-          <button
-            type="button"
-            onClick={() => setVariants((v) => [...v, { label: "", price: 0 }])}
-            className="text-xs font-semibold text-primary hover:underline"
-          >
-            + Add variant
-          </button>
-        </div>
-        <div className="space-y-2">
-          {variants.map((v, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <input
-                value={v.label}
-                onChange={(e) => setRow(i, "label", e.target.value)}
-                placeholder="1kg"
-                className={inputClass + " flex-1"}
-              />
-              <div className="relative w-32 shrink-0">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₦</span>
-                <input
-                  type="number"
-                  min={0}
-                  value={v.price || ""}
-                  onChange={(e) => setRow(i, "price", e.target.value)}
-                  placeholder="0"
-                  className={inputClass + " pl-6"}
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => setVariants((vs) => (vs.length > 1 ? vs.filter((_, idx) => idx !== i) : vs))}
-                aria-label="Remove variant"
-                className="rounded-lg p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600"
-              >
-                <Trash2 size={15} />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" name="published" defaultChecked={initial ? initial.published : true} className="h-4 w-4 rounded border-border" />
-        Published (visible on storefront)
-      </label>
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
       {state.success && <p className="text-sm text-green-600">{state.success}</p>}
@@ -190,6 +172,16 @@ export default function ProductsList({ products }: { products: Product[] }) {
   const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean)));
   const filtered = products.filter((p) => filter === "ALL" || p.category === filter);
 
+  const pageSize = 8;
+  const [page, setPage] = useState(1);
+  useEffect(() => {
+    setPage(1);
+  }, [filter]);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const current = Math.min(page, totalPages);
+  const start = (current - 1) * pageSize;
+  const paginated = filtered.slice(start, start + pageSize);
+
   async function handleDelete(p: Product) {
     if (!confirm(`Delete ${p.name}?`)) return;
     setBusyId(p.id);
@@ -202,7 +194,8 @@ export default function ProductsList({ products }: { products: Product[] }) {
     router.refresh();
   }
 
-  const filterOptions = ["ALL", ...categories];
+  const priceLine = (p: Product) => `${naira(p.price)}/${p.unit}`;
+  const minLine = (p: Product) => `${fmtQty(p.minQty)} ${p.unit}`;
 
   return (
     <section className="rounded-2xl border border-border bg-card">
@@ -215,9 +208,10 @@ export default function ProductsList({ products }: { products: Product[] }) {
               onChange={(e) => setFilter(e.target.value)}
               className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
             >
-              {filterOptions.map((c) => (
+              <option value="ALL">All categories</option>
+              {categories.map((c) => (
                 <option key={c} value={c}>
-                  {c === "ALL" ? "All categories" : c}
+                  {c}
                 </option>
               ))}
             </select>
@@ -248,13 +242,13 @@ export default function ProductsList({ products }: { products: Product[] }) {
                   <th className="px-5 py-2.5 font-medium">Product</th>
                   <th className="px-5 py-2.5 font-medium">Category</th>
                   <th className="px-5 py-2.5 font-medium">Price</th>
-                  <th className="px-5 py-2.5 font-medium">Variants</th>
+                  <th className="px-5 py-2.5 font-medium">Min order</th>
                   <th className="px-5 py-2.5 font-medium">Status</th>
                   <th className="px-5 py-2.5 text-right font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((p) => (
+                {paginated.map((p) => (
                   <tr key={p.id} className="border-b border-border/60 transition-colors last:border-0 hover:bg-muted/40">
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
@@ -266,8 +260,8 @@ export default function ProductsList({ products }: { products: Product[] }) {
                       </div>
                     </td>
                     <td className="px-5 py-3 text-muted-foreground">{p.category || "—"}</td>
-                    <td className="px-5 py-3 font-semibold">{priceRange(p.variants)}</td>
-                    <td className="px-5 py-3 text-muted-foreground">{p.variants.length}</td>
+                    <td className="px-5 py-3 font-semibold">{priceLine(p)}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{minLine(p)}</td>
                     <td className="px-5 py-3">
                       <span
                         className={
@@ -296,13 +290,13 @@ export default function ProductsList({ products }: { products: Product[] }) {
 
           {/* Mobile cards */}
           <ul className="divide-y divide-border md:hidden">
-            {filtered.map((p) => (
+            {paginated.map((p) => (
               <li key={p.id} className="flex items-center gap-3 px-2 py-3">
-                <Thumb src={p.image} name={p.name} />
+                <Thumb src={p.image} name={p.name} size="h-12 w-12" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{p.name}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {p.category || "—"} · {priceRange(p.variants)}
+                    {priceLine(p)} · min {minLine(p)}
                   </p>
                   <span
                     className={
@@ -325,6 +319,35 @@ export default function ProductsList({ products }: { products: Product[] }) {
             ))}
           </ul>
         </>
+      )}
+
+      {filtered.length > pageSize && (
+        <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-3 sm:px-5">
+          <p className="text-xs text-muted-foreground">
+            {start + 1}–{Math.min(start + pageSize, filtered.length)} of {filtered.length}
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={current <= 1}
+              aria-label="Previous page"
+              className="rounded-lg border border-border p-1.5 text-muted-foreground transition-colors hover:bg-accent disabled:opacity-40"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span className="px-1 text-xs font-medium tabular-nums">
+              {current} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={current >= totalPages}
+              aria-label="Next page"
+              className="rounded-lg border border-border p-1.5 text-muted-foreground transition-colors hover:bg-accent disabled:opacity-40"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
       )}
 
       {adding && (

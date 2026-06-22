@@ -17,6 +17,10 @@ const nextConfig = {
   distDir,
   // Pin file-tracing to this project (a parent lockfile exists one level up).
   outputFileTracingRoot: __dirname,
+  // Allow product image uploads through server actions.
+  experimental: {
+    serverActions: { bodySizeLimit: "8mb" },
+  },
 };
 
 export default nextConfig;

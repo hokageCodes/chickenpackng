@@ -1,4 +1,4 @@
-import { Package, Eye, Boxes, Tags, type LucideIcon } from "lucide-react";
+import { Package, Eye, Tags, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/db";
 import ProductsList, { type Product } from "./ProductsList";
 
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 async function getData() {
   const rows = await prisma.product.findMany({
     orderBy: { name: "asc" },
-    include: { category: true, variants: { orderBy: { priceNGN: "asc" } } },
+    include: { category: true },
   });
 
   const products: Product[] = rows.map((p) => ({
@@ -17,14 +17,16 @@ async function getData() {
     description: p.description ?? "",
     image: p.image ?? "",
     published: p.published,
-    variants: p.variants.map((v) => ({ label: v.label, price: Number(v.priceNGN) })),
+    unit: p.unit,
+    price: Number(p.pricePerUnitNGN),
+    minQty: p.minQty,
+    step: p.step,
   }));
 
   const published = products.filter((p) => p.published).length;
-  const variants = products.reduce((a, p) => a + p.variants.length, 0);
   const categories = new Set(products.map((p) => p.category).filter(Boolean)).size;
 
-  return { products, published, variants, categories };
+  return { products, published, categories };
 }
 
 function StatCard({
@@ -65,10 +67,9 @@ export default async function ProductsPage() {
         <p className="text-sm text-muted-foreground">Catalog of what Protein Pack sells</p>
       </header>
 
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         <StatCard icon={Package} chip="bg-primary/10 text-primary" label="Products" value={d.products.length} />
         <StatCard icon={Eye} chip="bg-green-100 text-green-700" label="Published" value={d.published} />
-        <StatCard icon={Boxes} chip="bg-sky-100 text-sky-600" label="Variants" value={d.variants} />
         <StatCard icon={Tags} chip="bg-gold/20 text-gold-foreground" label="Categories" value={d.categories} />
       </section>
 

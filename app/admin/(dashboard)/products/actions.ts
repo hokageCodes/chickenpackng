@@ -25,38 +25,55 @@ async function uniqueSlug(base: string, ignoreId?: string) {
   }
 }
 
+async function saveImage(file: File): Promise<string> {
+  const ext = ((file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "")) || "jpg";
+  const filename = `${crypto.randomUUID()}.${ext}`;
+
+  // Production: Vercel Blob (set BLOB_READ_WRITE_TOKEN).
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const { put } = await import("@vercel/blob");
+    const blob = await put(`products/${filename}`, file, { access: "public" });
+    return blob.url;
+  }
+
+  // Dev fallback: write to public/uploads (served at /uploads/...). Not for serverless prod.
+  const { writeFile, mkdir } = await import("node:fs/promises");
+  const { join } = await import("node:path");
+  const dir = join(process.cwd(), "public", "uploads");
+  await mkdir(dir, { recursive: true });
+  await writeFile(join(dir, filename), Buffer.from(await file.arrayBuffer()));
+  return `/uploads/${filename}`;
+}
+
+async function resolveImage(formData: FormData, fallbackPath: string): Promise<string> {
+  const file = formData.get("imageFile");
+  if (file instanceof File && file.size > 0) return saveImage(file);
+  return fallbackPath;
+}
+
 async function categoryIdFor(name: string) {
   if (!name) return null;
   const slug = slugify(name);
   const cat = await prisma.category.upsert({
     where: { slug },
-    update: {},
+    update: { name },
     create: { name, slug },
   });
   return cat.id;
 }
 
-type VariantInput = { label: string; price: number };
-
 function parseForm(formData: FormData) {
-  const name = String(formData.get("name") ?? "").trim();
-  const category = String(formData.get("category") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const image = String(formData.get("image") ?? "").trim();
-  const published = formData.get("published") === "on";
-
-  let variants: VariantInput[] = [];
-  try {
-    const raw = JSON.parse(String(formData.get("variants") ?? "[]"));
-    if (Array.isArray(raw)) {
-      variants = raw
-        .filter((v) => v && String(v.label).trim())
-        .map((v) => ({ label: String(v.label).trim(), price: Math.max(0, Number(v.price) || 0) }));
-    }
-  } catch {
-    /* ignore */
-  }
-  return { name, category, description, image, published, variants };
+  return {
+    name: String(formData.get("name") ?? "").trim(),
+    category: String(formData.get("category") ?? "").trim(),
+    description: String(formData.get("description") ?? "").trim(),
+    imagePath: String(formData.get("image") ?? "").trim(),
+    published: formData.get("published") === "on",
+    unit: String(formData.get("unit") ?? "kg").trim() || "kg",
+    price: Math.max(0, Number(formData.get("price")) || 0),
+    minQty: Math.max(0, Number(formData.get("minQty")) || 0) || 1,
+    step: Math.max(0, Number(formData.get("step")) || 0) || 1,
+  };
 }
 
 export async function createProduct(
@@ -66,36 +83,38 @@ export async function createProduct(
   const session = await auth();
   if (!session?.user?.id) return { error: "Not authenticated." };
 
-  const { name, category, description, image, published, variants } = parseForm(formData);
-  if (!name) return { error: "Name is required." };
-  if (variants.length === 0) return { error: "Add at least one variant (size + price)." };
+  const f = parseForm(formData);
+  if (!f.name) return { error: "Name is required." };
 
-  const slug = await uniqueSlug(slugify(name));
-  const categoryId = await categoryIdFor(category);
+  const slug = await uniqueSlug(slugify(f.name));
+  const categoryId = await categoryIdFor(f.category);
+  let image: string;
+  try {
+    image = await resolveImage(formData, f.imagePath);
+  } catch {
+    return { error: "Image upload failed. Try a smaller file." };
+  }
 
   try {
     await prisma.product.create({
       data: {
-        name,
+        name: f.name,
         slug,
         categoryId,
-        description: description || null,
+        description: f.description || null,
         image: image || null,
-        published,
-        variants: {
-          create: variants.map((v) => ({
-            label: v.label,
-            priceNGN: v.price,
-            sku: `${slug}-${slugify(v.label)}`,
-          })),
-        },
+        published: f.published,
+        unit: f.unit,
+        pricePerUnitNGN: f.price,
+        minQty: f.minQty,
+        step: f.step,
       },
     });
   } catch {
     return { error: "Could not create. Please try again." };
   }
   done();
-  return { success: `${name} created.` };
+  return { success: `${f.name} created.` };
 }
 
 export async function updateProduct(
@@ -106,38 +125,37 @@ export async function updateProduct(
   if (!session?.user?.id) return { error: "Not authenticated." };
 
   const id = String(formData.get("id") ?? "");
-  const { name, category, description, image, published, variants } = parseForm(formData);
-  if (!name) return { error: "Name is required." };
-  if (variants.length === 0) return { error: "Add at least one variant (size + price)." };
+  const f = parseForm(formData);
+  if (!f.name) return { error: "Name is required." };
 
   const existing = await prisma.product.findUnique({ where: { id } });
   if (!existing) return { error: "Product not found." };
 
-  const slug = await uniqueSlug(slugify(name), id);
-  const categoryId = await categoryIdFor(category);
+  const slug = await uniqueSlug(slugify(f.name), id);
+  const categoryId = await categoryIdFor(f.category);
+  let image: string;
+  try {
+    image = await resolveImage(formData, f.imagePath);
+  } catch {
+    return { error: "Image upload failed. Try a smaller file." };
+  }
 
   try {
-    await prisma.$transaction([
-      prisma.productVariant.deleteMany({ where: { productId: id } }),
-      prisma.product.update({
-        where: { id },
-        data: {
-          name,
-          slug,
-          categoryId,
-          description: description || null,
-          image: image || null,
-          published,
-          variants: {
-            create: variants.map((v) => ({
-              label: v.label,
-              priceNGN: v.price,
-              sku: `${slug}-${slugify(v.label)}-${Math.random().toString(36).slice(2, 6)}`,
-            })),
-          },
-        },
-      }),
-    ]);
+    await prisma.product.update({
+      where: { id },
+      data: {
+        name: f.name,
+        slug,
+        categoryId,
+        description: f.description || null,
+        image: image || null,
+        published: f.published,
+        unit: f.unit,
+        pricePerUnitNGN: f.price,
+        minQty: f.minQty,
+        step: f.step,
+      },
+    });
   } catch {
     return { error: "Could not update. Please try again." };
   }
@@ -149,7 +167,7 @@ export async function deleteProduct(id: string): Promise<{ ok: boolean; error?: 
   const session = await auth();
   if (!session?.user?.id) return { ok: false, error: "Not authenticated." };
   try {
-    await prisma.product.delete({ where: { id } }); // variants cascade
+    await prisma.product.delete({ where: { id } });
   } catch {
     return { ok: false, error: "Could not delete." };
   }
