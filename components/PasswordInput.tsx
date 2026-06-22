@@ -14,8 +14,8 @@ export default function PasswordInput(props: React.InputHTMLAttributes<HTMLInput
         type="button"
         onClick={() => setShow((s) => !s)}
         aria-label={show ? "Hide password" : "Show password"}
-        className="absolute inset-y-0 right-0 flex items-center px-3 text-neutral-400 transition-colors hover:text-neutral-700"
         tabIndex={-1}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 transition-colors hover:text-neutral-700"
       >
         {show ? <EyeOff size={16} /> : <Eye size={16} />}
       </button>
