@@ -102,6 +102,122 @@ async function main() {
   }
   console.log(`✓ Medications: ${meds.join(", ")}`);
 
+  // ── Commerce catalog (real Protein Pack products) ─────────
+  const catalog: Array<{
+    name: string;
+    category: string;
+    image: string;
+    description: string;
+    variants: Array<{ label: string; price: number }>;
+  }> = [
+    {
+      name: "Full Chicken",
+      category: "Chicken",
+      image: "/assets/hero-bg.webp",
+      description: "Whole broiler chicken, plump and juicy for family feasts.",
+      variants: [
+        { label: "1kg", price: 1800 },
+        { label: "2kg", price: 3500 },
+        { label: "5kg", price: 8000 },
+      ],
+    },
+    {
+      name: "Chicken Laps",
+      category: "Chicken",
+      image: "/assets/laps.jpg",
+      description: "Tender chicken thighs, perfect for grilling or stew.",
+      variants: [
+        { label: "1kg", price: 2200 },
+        { label: "2kg", price: 4500 },
+        { label: "5kg", price: 11000 },
+      ],
+    },
+    {
+      name: "Chicken Wings",
+      category: "Chicken",
+      image: "/assets/wings.jpg",
+      description: "Crispy golden wings — crowd-favourite for all occasions.",
+      variants: [
+        { label: "1kg", price: 2500 },
+        { label: "2kg", price: 4900 },
+        { label: "5kg", price: 12000 },
+      ],
+    },
+    {
+      name: "Chicken Breast",
+      category: "Chicken",
+      image: "/assets/chi.webp",
+      description: "Lean and healthy breast cuts — high in protein, low in fat.",
+      variants: [
+        { label: "1kg", price: 2400 },
+        { label: "2kg", price: 4700 },
+        { label: "5kg", price: 11700 },
+      ],
+    },
+    {
+      name: "Crate of Eggs",
+      category: "Eggs",
+      image: "/assets/farm.jpg",
+      description: "Farm-fresh eggs from our layer flocks.",
+      variants: [
+        { label: "Half crate", price: 2300 },
+        { label: "Full crate", price: 4200 },
+      ],
+    },
+    {
+      name: "Fresh Catfish",
+      category: "Fish",
+      image: "/assets/raw.jpg",
+      description: "Live/fresh catfish straight from our ponds.",
+      variants: [
+        { label: "1kg", price: 2600 },
+        { label: "5kg", price: 11000 },
+      ],
+    },
+    {
+      name: "Smoked Catfish",
+      category: "Fish",
+      image: "/assets/enjoy.jpg",
+      description: "Slow-smoked catfish, ready to cook.",
+      variants: [
+        { label: "0.5kg", price: 3500 },
+        { label: "1kg", price: 6000 },
+      ],
+    },
+  ];
+
+  const slugify = (s: string) =>
+    s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+  for (const p of catalog) {
+    const category = await prisma.category.upsert({
+      where: { slug: slugify(p.category) },
+      update: {},
+      create: { name: p.category, slug: slugify(p.category) },
+    });
+    const slug = slugify(p.name);
+    const product = await prisma.product.upsert({
+      where: { slug },
+      update: { categoryId: category.id, description: p.description, image: p.image },
+      create: {
+        name: p.name,
+        slug,
+        categoryId: category.id,
+        description: p.description,
+        image: p.image,
+      },
+    });
+    for (const v of p.variants) {
+      const sku = `${slug}-${slugify(v.label)}`;
+      await prisma.productVariant.upsert({
+        where: { sku },
+        update: { priceNGN: v.price, label: v.label },
+        create: { productId: product.id, label: v.label, priceNGN: v.price, sku },
+      });
+    }
+  }
+  console.log(`✓ Catalog: ${catalog.length} products`);
+
   console.log("\nSeed complete. Frozen stock = 0 (no inventory rows yet).");
 }
 
