@@ -166,6 +166,21 @@ async function main() {
   }
   console.log(`✓ Catalog: ${catalog.length} products (per-unit pricing)`);
 
+  // ── Delivery zones (placeholder fees — edit in admin) ─────
+  const zones = [
+    { name: "Lagos Mainland", areas: "Yaba, Surulere, Ikeja, Maryland, Gbagada", feeNGN: 2500, minOrderNGN: 5000, eta: "Same day" },
+    { name: "Lagos Island", areas: "Lekki, Victoria Island, Ikoyi, Ajah", feeNGN: 3500, minOrderNGN: 5000, eta: "Same day" },
+    { name: "Outside Lagos", areas: "Ogun, Ibadan and nearby states", feeNGN: 6000, minOrderNGN: 20000, eta: "1–3 days" },
+  ];
+  for (const z of zones) {
+    await prisma.deliveryZone.upsert({
+      where: { name: z.name },
+      update: {},
+      create: z,
+    });
+  }
+  console.log(`✓ Delivery zones: ${zones.length}`);
+
   console.log("\nSeed complete. Frozen stock = 0 (no inventory rows yet).");
 }
 

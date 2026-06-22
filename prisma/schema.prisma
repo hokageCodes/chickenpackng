@@ -371,3 +371,15 @@ model Payment {
   paidAt       DateTime?
   createdAt    DateTime      @default(now())
 }
+
+// ── Delivery zones ──────────────────────────────────────────
+model DeliveryZone {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  areas       String? // free-text list of covered areas
+  feeNGN      Decimal  @default(0) @db.Decimal(12, 2)
+  minOrderNGN Decimal  @default(0) @db.Decimal(12, 2)
+  eta         String? // "Same day", "1-2 days"
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}

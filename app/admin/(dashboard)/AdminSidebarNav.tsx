@@ -25,7 +25,7 @@ const NAV: NavItem[] = [
   { href: "/admin/products", label: "Products", icon: Package, ready: true },
   { href: "/admin/customers", label: "Customers", icon: Users, ready: true },
   { href: "/admin/payments", label: "Payments", icon: CreditCard, ready: true },
-  { href: "/admin/delivery", label: "Delivery", icon: Truck, ready: false },
+  { href: "/admin/delivery", label: "Delivery", icon: Truck, ready: true },
   { href: "/admin/discounts", label: "Discounts", icon: Percent, ready: false },
   { href: "/admin/reviews", label: "Reviews", icon: Star, ready: false },
   { href: "/admin/reports", label: "Reports", icon: BarChart3, ready: false },
