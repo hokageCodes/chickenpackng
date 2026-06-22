@@ -1,10 +1,30 @@
 "use client"
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Wallet, Gift, Truck, Phone, BoxIcon, ArrowRightCircleIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { BoxIcon, ArrowRightCircleIcon } from 'lucide-react';
+
+// Hardcoded product words that cycle in the hero headline (not from backend).
+const PRODUCT_WORDS = [
+  'Tender Chicken',
+  'Smoked Fish',
+  'Chicken Breast',
+  'Chicken Wings',
+  'Live Catfish',
+  'Farm-Fresh Eggs',
+];
 
 // Hero Section Component
 const HeroSection = () => {
+  const [wordIndex, setWordIndex] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(
+      () => setWordIndex((i) => (i + 1) % PRODUCT_WORDS.length),
+      2200
+    );
+    return () => clearInterval(id);
+  }, []);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -20,29 +40,6 @@ const HeroSection = () => {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
   };
-
-  const features = [
-    {
-      icon: <Wallet className="w-8 h-8" />,
-      title: "CASH ON DELIVERY",
-      description: "100% money back guarantee"
-    },
-    {
-      icon: <Gift className="w-8 h-8" />,
-      title: "SPECIAL GIFT CARD",
-      description: "Offer special bonuses with gift"
-    },
-    // {
-    //   icon: <Truck className="w-8 h-8" />,
-    //   title: "FREE SHIPPING IN LAGOS",
-    //   description: "On Orders over ₦ 20,000.00"
-    // },
-    // {
-    //   icon: <Phone className="w-8 h-8" />,
-    //   title: "24/7 CUSTOMER SERVICE",
-    //   description: "Call us +234 90 783 547 44"
-    // }
-  ];
 
   return (
     <section
@@ -75,12 +72,12 @@ const HeroSection = () => {
                 gap: '10px'
               }}
             >
-              Organic Fresh Chicken
+              Chicken • Fish • Eggs
             </div>
           </motion.div>
 
           {/* Heading */}
-          <h1
+          <motion.h1
             className="text-white text-4xl sm:text-8xl leading-tight max-w-full text-center sm:text-left"
             variants={itemVariants}
             style={{
@@ -90,8 +87,43 @@ const HeroSection = () => {
               maxWidth: '900px'
             }}
           >
-            Fresh, Safe Quality, Tender Chickens
-          </h1>
+            Fresh, Safe Quality,{' '}
+            <span className="relative inline-block align-bottom">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={wordIndex}
+                  className="inline-block whitespace-nowrap text-brand-orange"
+                  initial={{ y: '0.4em', opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: '-0.4em', opacity: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                >
+                  {PRODUCT_WORDS[wordIndex]}
+                </motion.span>
+              </AnimatePresence>
+
+              {/* Hand-drawn underline — redraws on each word change */}
+              <svg
+                className="pointer-events-none absolute left-0 -bottom-2 sm:-bottom-4 w-full"
+                height="18"
+                viewBox="0 0 300 18"
+                fill="none"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <motion.path
+                  key={wordIndex}
+                  d="M4 11 C 64 4, 122 5, 168 9 C 214 13, 260 12, 296 6"
+                  stroke="#EC6809"
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 0.55, ease: 'easeInOut', delay: 0.25 }}
+                />
+              </svg>
+            </span>
+          </motion.h1>
 
           {/* Subtext */}
           <p
@@ -140,56 +172,6 @@ const HeroSection = () => {
               How it Works
               <ArrowRightCircleIcon size={20} />
             </button>
-          </motion.div>
-
-          {/* Features */}
-          <motion.div
-            className="grid grid-cols-1 flex flex-wrap gap-4 mt-10"
-            variants={itemVariants}
-          >
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                className="flex items-center transition-all duration-300 shadow-sm hover:shadow-md group w-full sm:w-fit px-4 py-2"
-                whileHover={{ scale: 1.02 }}
-                style={{
-                  backgroundColor: 'rgba(80, 13, 7, 0.3)',
-                  borderRadius: '10px'
-                }}
-              >
-                <div
-                  className="flex-shrink-0 flex items-center justify-center text-yellow-500 mr-2"
-                  style={{
-                    width: '32px',
-                    height: '32px'
-                  }}
-                >
-                  {feature.icon}
-                </div>
-                <div className="flex flex-col text-left">
-                  <h3
-                    className="text-xs sm:text-sm"
-                    style={{
-                      fontFamily: 'Lexend Deca',
-                      fontWeight: 500,
-                      color: '#A88683'
-                    }}
-                  >
-                    {feature.title}
-                  </h3>
-                  <p
-                    className="text-sm"
-                    style={{
-                      fontFamily: 'Lexend Deca',
-                      fontWeight: 700,
-                      color: 'gray'
-                    }}
-                  >
-                    {feature.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
           </motion.div>
         </motion.div>
       </div>

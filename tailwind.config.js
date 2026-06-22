@@ -14,6 +14,15 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			// Protein Pack storefront palette (public site only — admin keeps wine/gold)
+  			brand: {
+  				DEFAULT: '#EC6809', // vivid orange — primary CTA/accent
+  				orange: '#EC6809',
+  				brown: '#582500', // deep brown — headings / dark brand
+  				peach: '#FAA264', // soft peach — highlights
+  				cream: '#F9F6EF', // off-white — page background
+  				tan: '#D8C4AC' // muted warm neutral
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
