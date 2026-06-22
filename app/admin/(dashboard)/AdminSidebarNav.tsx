@@ -23,7 +23,7 @@ const NAV: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, ready: true },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart, ready: true },
   { href: "/admin/products", label: "Products", icon: Package, ready: true },
-  { href: "/admin/customers", label: "Customers", icon: Users, ready: false },
+  { href: "/admin/customers", label: "Customers", icon: Users, ready: true },
   { href: "/admin/payments", label: "Payments", icon: CreditCard, ready: false },
   { href: "/admin/delivery", label: "Delivery", icon: Truck, ready: false },
   { href: "/admin/discounts", label: "Discounts", icon: Percent, ready: false },

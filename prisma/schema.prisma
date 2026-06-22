@@ -278,14 +278,15 @@ enum CustomerType {
 }
 
 model Customer {
-  id        String       @id @default(cuid())
-  name      String
-  type      CustomerType @default(RETAIL)
-  phone     String?
-  email     String?
-  address   String?
-  createdAt DateTime     @default(now())
-  orders    Order[]
+  id            String        @id @default(cuid())
+  name          String
+  type          CustomerType  @default(RETAIL) // effective role
+  requestedType CustomerType? // pending upgrade request (set from storefront), null when none
+  phone         String?
+  email         String?
+  address       String?
+  createdAt     DateTime      @default(now())
+  orders        Order[]
 }
 
 model Category {
