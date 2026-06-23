@@ -102,7 +102,7 @@ const HeroSection = () => {
                 </motion.span>
               </AnimatePresence>
 
-              {/* Hand-drawn underline — redraws on each word change */}
+              {/* Hand-drawn underline, redraws on each word change */}
               <svg
                 className="pointer-events-none absolute left-0 -bottom-2 sm:-bottom-4 w-full"
                 height="18"

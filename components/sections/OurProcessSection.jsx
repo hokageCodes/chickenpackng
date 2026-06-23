@@ -1,137 +1,144 @@
-'use client'
+'use client';
 
-import Image from 'next/image'
-import { motion } from 'framer-motion'
+import Link from 'next/link';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
 
 const steps = [
   {
     number: '01',
-    title: 'Source',
-    headline: 'We Source From Local Farms',
-    text: 'We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.',
-    image: '/assets/01.jpg',
-    button: 'Build your pack',
+    eyebrow: 'Raise',
+    headline: 'Raised on our farm',
+    text: 'Healthy birds and catfish raised on clean feed, with real care from day one, no shortcuts.',
+    image: '/assets/farm.jpg',
   },
   {
     number: '02',
-    title: 'Craft',
-    headline: 'You Choose What’s in Your Pack',
-    text: 'Customize your package for delivery with exactly what you want.',
-    image: '/assets/laps.jpg',
-    button: 'Build your pack',
+    eyebrow: 'Process',
+    headline: 'Processed fresh',
+    text: 'Cleaned, cut or smoked to order, never left sitting frozen for months.',
+    image: '/assets/raw.jpg',
   },
   {
     number: '03',
-    title: 'Deliver',
-    headline: 'Farms Pack & We Deliver',
-    text: 'Your Package is delivered right to your door in an insulated pack.',
-    image: '/assets/thanks.jpg',
-    button: 'Build your pack',
+    eyebrow: 'Order',
+    headline: 'Order your way',
+    text: 'Pick exactly what you need on the site, or message us straight on WhatsApp.',
+    image: '/assets/laps.jpg',
   },
   {
     number: '04',
-    title: 'Deliver',
-    headline: 'You Enjoy',
-    text: 'Prepare your chicken however you’d like and enjoy it with friends and family.',
+    eyebrow: 'Deliver',
+    headline: 'Delivered to you',
+    text: 'Same-day and scheduled delivery across the Lagos mainland and island.',
     image: '/assets/enjoy.jpg',
-    button: 'Build your pack',
   },
-]
+];
 
 const containerVariants = {
   hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.3,
-    },
-  },
-}
+  show: { transition: { staggerChildren: 0.2 } },
+};
 
 const itemVariants = {
   hidden: { opacity: 0, y: 50 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.8 } },
-}
+  show: { opacity: 1, y: 0, transition: { duration: 0.7 } },
+};
 
 const imageVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  show: { opacity: 1, scale: 1, transition: { duration: 0.8 } },
-}
+  hidden: { opacity: 0, scale: 0.95 },
+  show: { opacity: 1, scale: 1, transition: { duration: 0.7 } },
+};
 
 const TextContent = ({ step }) => (
-  <div className="relative space-y-6">
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 0.1, y: 0 }} // <-- bumped opacity
-      transition={{ duration: 0.6 }}
-      className="absolute -top-12 left-0 text-9xl font-bold text-red-600 -translate-y-16 select-none z-0"
-    >
+  <div className="relative">
+    {/* ghost number */}
+    <span className="pointer-events-none absolute -top-20 left-0 select-none text-[10rem] font-bold leading-none text-brand-orange/10">
       {step.number}
-    </motion.div>
+    </span>
 
+    <div className="relative space-y-5">
+      <div className="flex items-center gap-3">
+        <span className="h-0.5 w-14 bg-brand-orange" />
+        <p className="font-semibold uppercase tracking-widest text-brand-orange">
+          {step.eyebrow}
+        </p>
+      </div>
 
-    <div className="relative z-10 flex items-center space-x-4 ml-16">
-      <div className="h-0.5 w-16 bg-yellow-500" />
-      <p className="text-yellow-500 uppercase tracking-widest font-semibold">
-        {step.title}
-      </p>
+      <h3 className="text-3xl font-bold text-brand-brown sm:text-4xl lg:text-5xl">
+        {step.headline}
+      </h3>
+      <p className="max-w-md leading-relaxed text-brand-brown/60">{step.text}</p>
+
+      <Link
+        href="/products"
+        className="inline-flex items-center gap-2 rounded-full bg-brand-orange px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-brown"
+      >
+        Start your order
+        <ArrowRight size={18} />
+      </Link>
     </div>
-
-    <h2 className="text-4xl sm:text-5xl z-10 relative text-white">
-      {step.headline}
-    </h2>
-    <p className="text-gray-300 max-w-md z-10 relative">{step.text}</p>
-
-    <button className="text-white border-2 border-white hover:bg-yellow-600 hover:text-black font-bold px-8 py-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 text-lg bg-black/50 hover:scale-105 transform w-full sm:w-auto">
-        {step.button}
-    </button>
   </div>
-)
+);
 
 const ImageBlock = ({ step }) => (
   <motion.div
     variants={imageVariants}
-    className="w-full h-72 sm:h-96 lg:h-[28rem] rounded-xl overflow-hidden shadow-xl"
+    className="h-72 overflow-hidden rounded-3xl shadow-xl ring-1 ring-brand-tan/40 sm:h-96 lg:h-[28rem]"
   >
     <Image
       src={step.image}
-      alt={step.title}
+      alt={step.headline}
       width={1000}
       height={800}
-      className="w-full h-full object-cover"
+      className="h-full w-full object-cover"
     />
   </motion.div>
-)
+);
 
-export default function FarmToTableSection() {
+export default function OurProcessSection() {
   return (
-    <motion.section
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.2 }}
-      variants={containerVariants}
-      className="py-24 px-2 md:px-12 text-white"
-    >
-      <div className="max-w-6xl mx-auto space-y-32">
-        {steps.map((step, i) => (
-          <motion.div
-            key={step.number}
-            variants={itemVariants}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
-          >
-            {i % 2 === 0 ? (
-              <>
-                <TextContent step={step} />
-                <ImageBlock step={step} />
-              </>
-            ) : (
-              <>
-                <ImageBlock step={step} />
-                <TextContent step={step} />
-              </>
-            )}
-          </motion.div>
-        ))}
+    <section className="bg-white py-16 sm:py-24">
+      <div className="mx-auto max-w-[1100px] px-4 sm:px-10 lg:px-16">
+        {/* Section header */}
+        <div className="mb-16 text-center sm:mb-20">
+          <span className="text-sm font-semibold uppercase tracking-wider text-brand-orange">
+            How it works
+          </span>
+          <h2 className="mt-2 text-3xl font-bold text-brand-brown sm:text-4xl lg:text-5xl">
+            Our Process
+          </h2>
+        </div>
+
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={containerVariants}
+          className="space-y-24 sm:space-y-32"
+        >
+          {steps.map((step, i) => (
+            <motion.div
+              key={step.number}
+              variants={itemVariants}
+              className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16"
+            >
+              {i % 2 === 0 ? (
+                <>
+                  <TextContent step={step} />
+                  <ImageBlock step={step} />
+                </>
+              ) : (
+                <>
+                  <ImageBlock step={step} />
+                  <TextContent step={step} />
+                </>
+              )}
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
-    </motion.section>
-  )
+    </section>
+  );
 }

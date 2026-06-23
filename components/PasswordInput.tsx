@@ -9,13 +9,11 @@ export default function PasswordInput(
   props: React.InputHTMLAttributes<HTMLInputElement>
 ) {
   const [show, setShow] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { className: _ignored, ...rest } = props;
 
   return (
     <div className="flex items-center rounded-lg border border-neutral-300 bg-white focus-within:border-primary">
       <input
-        {...rest}
+        {...props}
         type={show ? "text" : "password"}
         className="w-full rounded-lg bg-transparent px-3 py-2 text-sm outline-none"
       />

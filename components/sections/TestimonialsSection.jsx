@@ -1,267 +1,156 @@
-"use client"
-import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+'use client';
 
+import { useRef, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, Star, Quote } from 'lucide-react';
+
+// Placeholder testimonials, swap for real customer quotes when available.
 const testimonials = [
   {
-    id: 1,
-    text: "We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.",
-    name: "Andrew Garfield",
-    role: "Cook"
+    text: 'Their frozen chicken is always clean and properly cut. My kitchen has used Protein Pack for months and the quality never drops.',
+    name: 'Chinwe Okafor',
+    role: 'Restaurant Owner',
+    rating: 5,
   },
   {
-    id: 2,
-    text: "We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.",
-    name: "Andrew Garfield",
-    role: "Cook"
+    text: 'I order a crate of eggs every week and it arrives the same day, fresh, never cracked. Exactly what a busy home needs.',
+    name: 'Tunde Bakare',
+    role: 'Home Customer',
+    rating: 5,
   },
   {
-    id: 3,
-    text: "We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.",
-    name: "Andrew Garfield",
-    role: "Cook"
+    text: 'The smoked catfish is rich and ready to cook. My customers can taste the difference at every event.',
+    name: 'Amaka Eze',
+    role: 'Caterer',
+    rating: 5,
   },
   {
-    id: 4,
-    text: "We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.",
-    name: "Andrew Garfield",
-    role: "Cook"
+    text: 'As a distributor I need reliable bulk supply. Their live birds come healthy and on time, every single order.',
+    name: 'Ibrahim Sani',
+    role: 'Distributor',
+    rating: 5,
   },
   {
-    id: 5,
-    text: "We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.",
-    name: "Andrew Garfield",
-    role: "Cook"
+    text: 'Ordering on WhatsApp is so easy. I message them, pay on delivery, and my chicken shows up the same day.',
+    name: 'Bisi Adeyemi',
+    role: 'Office Admin',
+    rating: 5,
   },
   {
-    id: 6,
-    text: "We connect you to local farmers who commit to quality, ethical treatment of animals and humane farming practices.",
-    name: "Andrew Garfield",
-    role: "Cook"
-  }
+    text: 'Fair prices, honest weight and proper hygiene. Protein Pack is our go-to for poultry and fish now.',
+    name: 'Gozie Nwosu',
+    role: 'Event Planner',
+    rating: 5,
+  },
 ];
 
+function Stars({ rating }) {
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          size={16}
+          className={i < rating ? 'fill-brand-orange text-brand-orange' : 'text-brand-tan'}
+        />
+      ))}
+    </div>
+  );
+}
+
+function initials(name) {
+  return name.split(' ').map((w) => w[0]).slice(0, 2).join('');
+}
+
 export default function TestimonialsCarousel() {
-  const [currentIndex, setCurrentIndex] = useState(1);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const containerRef = useRef(null);
-  const autoPlayRef = useRef(null);
+  const trackRef = useRef(null);
 
-  // Create extended array for infinite loop
-  const extendedTestimonials = [
-    ...testimonials.slice(-1), // Last item at the beginning
-    ...testimonials,
-    ...testimonials.slice(0, 1) // First item at the end
-  ];
+  const scrollByCard = (dir) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const card = track.querySelector('[data-card]');
+    const amount = card ? card.offsetWidth + 24 : track.clientWidth;
 
+    const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 8;
+    const atStart = track.scrollLeft <= 8;
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-  
-    const width = 280 + 32;
-    containerRef.current.style.transition = 'transform 0.5s ease-in-out';
-    containerRef.current.style.transform = `translateX(-${currentIndex * width}px)`;
-  
-    let timeoutId;
-  
-    // After transition ends, jump without animation if we hit cloned slides
-    if (currentIndex === 0) {
-      timeoutId = setTimeout(() => {
-        containerRef.current.style.transition = 'none';
-        setCurrentIndex(testimonials.length); // real last slide
-      }, 500);
-    } else if (currentIndex === testimonials.length + 1) {
-      timeoutId = setTimeout(() => {
-        containerRef.current.style.transition = 'none';
-        setCurrentIndex(1); // real first slide
-      }, 500);
+    if (dir > 0 && atEnd) {
+      track.scrollTo({ left: 0, behavior: 'smooth' });
+    } else if (dir < 0 && atStart) {
+      track.scrollTo({ left: track.scrollWidth, behavior: 'smooth' });
+    } else {
+      track.scrollBy({ left: dir * amount, behavior: 'smooth' });
     }
-  
-    return () => clearTimeout(timeoutId);
-  }, [currentIndex]);
-  
+  };
 
-  // Auto-play functionality
+  // Auto-advance
   useEffect(() => {
-    const startAutoPlay = () => {
-      autoPlayRef.current = setInterval(() => {
-        nextSlide();
-      }, 4000);
-    };
-
-    startAutoPlay();
-
-    return () => {
-      if (autoPlayRef.current) {
-        clearInterval(autoPlayRef.current);
-      }
-    };
+    const id = setInterval(() => scrollByCard(1), 5000);
+    return () => clearInterval(id);
   }, []);
 
-  const resetAutoPlay = () => {
-    if (autoPlayRef.current) {
-      clearInterval(autoPlayRef.current);
-    }
-    autoPlayRef.current = setInterval(() => {
-      nextSlide();
-    }, 4000);
-  };
-
-  const nextSlide = () => {
-    if (isTransitioning) return;
-    
-    setIsTransitioning(true);
-    setCurrentIndex(prev => prev + 1);
-    
-    setTimeout(() => {
-      if (currentIndex + 1 > testimonials.length) {
-        setCurrentIndex(1);
-        if (containerRef.current) {
-          containerRef.current.style.transition = 'none';
-          containerRef.current.style.transform = `translateX(-${1 * (280 + 32)}px)`;
-          setTimeout(() => {
-            if (containerRef.current) {
-              containerRef.current.style.transition = 'transform 0.5s ease-in-out';
-            }
-          }, 50);
-        }
-      }
-      setIsTransitioning(false);
-    }, 500);
-  };
-
-  const prevSlide = () => {
-    if (isTransitioning) return;
-    
-    setIsTransitioning(true);
-    setCurrentIndex(prev => prev - 1);
-    
-    setTimeout(() => {
-      if (currentIndex - 1 < 1) {
-        setCurrentIndex(testimonials.length);
-        if (containerRef.current) {
-          containerRef.current.style.transition = 'none';
-          containerRef.current.style.transform = `translateX(-${testimonials.length * (280 + 32)}px)`;
-          setTimeout(() => {
-            if (containerRef.current) {
-              containerRef.current.style.transition = 'transform 0.5s ease-in-out';
-            }
-          }, 50);
-        }
-      }
-      setIsTransitioning(false);
-    }, 500);
-  };
-
-  const goToSlide = (index) => {
-    if (isTransitioning) return;
-    setCurrentIndex(index + 1);
-    resetAutoPlay();
-  };
-
   return (
-    <section className="w-full py-16 bg-[#2A2A2A] overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4">
+    <section className="bg-brand-brown py-16 sm:py-24">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-10 lg:px-16">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-white text-4xl md:text-5xl lg:text-6xl font-light mb-8" 
-              style={{ fontFamily: 'serif' }}>
-            What our customers say.
-          </h2>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <span className="text-sm font-semibold uppercase tracking-wider text-brand-peach">
+              Loved across Lagos
+            </span>
+            <h2 className="mt-2 text-3xl font-bold text-brand-cream sm:text-4xl lg:text-5xl">
+              What our customers say
+            </h2>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => scrollByCard(-1)}
+              aria-label="Previous"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-brand-cream/30 text-brand-cream transition-colors hover:border-brand-orange hover:bg-brand-orange hover:text-white"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={() => scrollByCard(1)}
+              aria-label="Next"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-brand-cream/30 text-brand-cream transition-colors hover:border-brand-orange hover:bg-brand-orange hover:text-white"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
         </div>
 
-        {/* Carousel Container */}
-        <div className="relative">
-          {/* Cards Container */}
-          <div className="overflow-hidden">
-            <div
-              ref={containerRef}
-              className="flex gap-8 transition-transform duration-500 ease-in-out"
-              style={{
-                transform: `translateX(-${currentIndex * (280 + 32)}px)`,
-                width: `${extendedTestimonials.length * (280 + 32)}px`
-              }}
+        {/* Track */}
+        <div
+          ref={trackRef}
+          className="mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {testimonials.map((t, i) => (
+            <figure
+              key={i}
+              data-card
+              className="flex w-[85%] shrink-0 snap-start flex-col rounded-2xl bg-brand-cream p-7 sm:w-[400px]"
             >
-              {extendedTestimonials.map((testimonial, index) => (
-                <div
-                  key={`${testimonial.id}-${index}`}
-                  className="flex-shrink-0 bg-white rounded-[10px] p-6"
-                  style={{
-                    width: '280px',
-                    height: '240px'
-                  }}
-                >
-                  <div className="h-full flex flex-col justify-between">
-                    {/* Testimonial Text */}
-                    <p 
-                      className="text-[#333] mb-6"
-                      style={{
-                        fontFamily: 'Lexend Deca, sans-serif',
-                        fontWeight: 400,
-                        fontSize: '16px',
-                        lineHeight: '24px',
-                        letterSpacing: '0%'
-                      }}
-                    >
-                      {testimonial.text}
-                    </p>
-                    
-                    {/* Author Info */}
-                    <div 
-                      className="flex flex-col gap-2"
-                      style={{
-                        width: '171px',
-                        height: '52px'
-                      }}
-                    >
-                      <h4 className="text-[#333] font-semibold text-lg">
-                        {testimonial.name}
-                      </h4>
-                      <p className="text-[#666] text-sm">
-                        {testimonial.role}
-                      </p>
-                    </div>
-                  </div>
+              <div className="flex items-center justify-between">
+                <Stars rating={t.rating} />
+                <Quote size={32} className="text-brand-orange/20" />
+              </div>
+
+              <blockquote className="mt-4 flex-1 leading-relaxed text-brand-brown/80">
+                “{t.text}”
+              </blockquote>
+
+              <figcaption className="mt-6 flex items-center gap-3 border-t border-brand-tan/40 pt-5">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-orange text-sm font-bold text-white">
+                  {initials(t.name)}
+                </span>
+                <div>
+                  <p className="font-bold text-brand-brown">{t.name}</p>
+                  <p className="text-sm text-brand-brown/60">{t.role}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Navigation Arrows */}
-          <div className="flex justify-center gap-4 mt-8">
-            <button
-              onClick={() => { prevSlide(); resetAutoPlay(); }}
-              className="w-12 h-12 rounded-full border-2 border-white/30 text-white/70 hover:border-white hover:text-white transition-all duration-300 flex items-center justify-center group"
-              disabled={isTransitioning}
-            >
-              <ChevronLeft size={20} className="group-hover:scale-110 transition-transform" />
-            </button>
-            <button
-              onClick={() => { nextSlide(); resetAutoPlay(); }}
-              className="w-12 h-12 rounded-full border-2 border-white/30 text-white/70 hover:border-white hover:text-white transition-all duration-300 flex items-center justify-center group"
-              disabled={isTransitioning}
-            >
-              <ChevronRight size={20} className="group-hover:scale-110 transition-transform" />
-            </button>
-          </div>
-
-          {/* Dot Indicators */}
-          <div className="flex justify-center gap-2 mt-6">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  (currentIndex === index + 1) || 
-                  (currentIndex === 0 && index === testimonials.length - 1) ||
-                  (currentIndex === testimonials.length + 1 && index === 0)
-                    ? 'bg-white w-6' 
-                    : 'bg-white/40 hover:bg-white/60'
-                }`}
-                disabled={isTransitioning}
-              />
-            ))}
-          </div>
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </div>
     </section>

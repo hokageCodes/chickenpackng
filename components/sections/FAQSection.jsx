@@ -2,134 +2,129 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiChevronDown, FiHelpCircle } from 'react-icons/fi';
+import { ChevronDown, HelpCircle } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
+import { whatsappHref } from '@/lib/site';
 
 const faqs = [
   {
-    question: 'How do I store the meat once delivered?',
+    question: 'How do I place an order?',
     answer:
-      'We recommend freezing the meat immediately upon delivery unless you plan to cook it the same day. Our vacuum-sealed packaging maintains freshness for up to 6 months in the freezer.',
+      'Browse the shop and order online, or message us directly on WhatsApp, whichever is easier for you. Walk-in buyers are always welcome at the farm too.',
   },
   {
-    question: 'Do you deliver outside Lagos?',
+    question: 'What payment options do you accept?',
     answer:
-      'Currently, our deliveries are limited to Lagos, but we are expanding soon. Subscribe to our newsletter to be the first to know when we reach your area.',
+      'Pay online with Paystack, by bank transfer, or with cash on delivery. Neighbourhood buyers can also simply pay cash at the farm.',
   },
   {
-    question: 'Is the meat organic?',
+    question: 'Do you sell live chicken and catfish?',
     answer:
-      'Yes, all our animals are grass-fed and raised without hormones or antibiotics. We work directly with local farmers who follow sustainable and ethical farming practices.',
+      'Yes. We supply live broilers and live catfish in bulk (from 200kg), alongside processed cuts, smoked fish and farm-fresh eggs.',
   },
   {
-    question: 'What are your delivery hours?',
+    question: 'Where do you deliver, and how fast?',
     answer:
-      'We deliver Monday through Saturday from 8 AM to 6 PM. Same-day delivery is available for orders placed before 2 PM.',
+      'We offer same-day and scheduled delivery across the Lagos mainland and island. Place your order early in the day to catch same-day delivery.',
   },
   {
-    question: 'How do you ensure meat quality during transport?',
+    question: 'How fresh is the chicken and fish?',
     answer:
-      'All meat is transported in temperature-controlled vehicles with dry ice to maintain the cold chain. Each package includes a temperature indicator to ensure quality upon delivery.',
+      'Everything is cleaned, cut or smoked to order, straight from our farm, never left sitting frozen for months.',
   },
   {
-    question: 'Can I customize my order?',
+    question: 'Can I order in bulk or as a distributor?',
     answer:
-      'Absolutely! You can specify cuts, portions, and special preparations. Contact us directly for bulk orders or special requests.',
+      'Absolutely. We offer distributor and agent pricing for restaurants, caterers and resellers, reach out on WhatsApp and we’ll set you up.',
   },
 ];
 
 export default function FAQ() {
-  const [activeIndex, setActiveIndex] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <section className="py-12 px-2 relative overflow-hidden bg-[#FEFBF6] text-black">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16">
-        {/* Left Side */}
+    <section className="bg-white py-16 sm:py-24">
+      <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 px-4 sm:px-10 lg:grid-cols-2 lg:gap-20 lg:px-16">
+        {/* Left, intro + help card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6 }}
+          className="lg:sticky lg:top-28 lg:self-start"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-500 text-black rounded-2xl mb-6">
-            <FiHelpCircle size={32} />
-          </div>
-          <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-            Frequently Asked Questions
+          <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-orange/10 text-brand-orange">
+            <HelpCircle size={28} />
+          </span>
+          <h2 className="mt-6 text-3xl font-bold text-brand-brown sm:text-4xl lg:text-5xl">
+            Frequently asked questions
           </h2>
-          <p className="text-lg text-slate-700 mb-8 max-w-md">
-            Everything you need to know about our premium meat delivery service.
+          <p className="mt-4 max-w-md text-brand-brown/60">
+            Everything about ordering, payment and delivery from Protein Pack.
           </p>
-          <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200 max-w-md">
-            <h3 className="text-xl font-bold mb-2">Still have questions?</h3>
-            <p className="text-slate-600 mb-4">
-              Our customer support team is here to help you with any concerns.
+
+          <div className="mt-8 max-w-md rounded-2xl border border-brand-tan/50 bg-brand-cream p-6">
+            <h3 className="text-lg font-bold text-brand-brown">Still have questions?</h3>
+            <p className="mt-1 text-sm text-brand-brown/60">
+              Chat with us on WhatsApp and we’ll sort you out in minutes.
             </p>
-            <button className="bg-yellow-500 text-black font-semibold px-6 py-3 rounded-xl transition hover:shadow-lg hover:scale-105 active:scale-95">
-              Contact Support
-            </button>
+            <a
+              href={whatsappHref('Hello Protein Pack! I have a question.')}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-brand-orange px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-brown"
+            >
+              <FaWhatsapp size={18} />
+              Chat on WhatsApp
+            </a>
           </div>
         </motion.div>
 
-        {/* Right Side (Scrollable FAQs) */}
-        <div className="overflow-y-auto max-h-[600px] pr-2">
-          <div className="flex flex-col gap-6">
-            {faqs.map((faq, index) => {
-              const isOpen = activeIndex === index;
-
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="group"
+        {/* Right, accordion */}
+        <div className="flex flex-col gap-4">
+          {faqs.map((faq, index) => {
+            const isOpen = activeIndex === index;
+            return (
+              <div
+                key={index}
+                className={`overflow-hidden rounded-2xl border bg-white transition-colors ${
+                  isOpen ? 'border-brand-orange' : 'border-brand-tan/50'
+                }`}
+              >
+                <button
+                  onClick={() => setActiveIndex(isOpen ? null : index)}
+                  className="flex w-full items-center justify-between gap-4 p-5 text-left"
                 >
-                  <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow hover:shadow-md transition duration-300 hover:border-yellow-500">
-                    <button
-                      onClick={() =>
-                        setActiveIndex(isOpen ? null : index)
-                      }
-                      className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 transition-colors"
-                    >
-                      <span className="font-medium text-lg pr-4 text-black">
-                        {faq.question}
-                      </span>
-                      <motion.div
-                        animate={{
-                          rotate: isOpen ? 180 : 0,
-                        }}
-                        transition={{ duration: 0.3 }}
-                        className="w-10 h-10 flex items-center justify-center rounded-full"
-                      >
-                        <FiChevronDown
-                          size={22}
-                          className={`${
-                            isOpen ? 'text-green-600' : 'text-yellow-500'
-                          } transition`}
-                        />
-                      </motion.div>
-                    </button>
+                  <span className="font-semibold text-brand-brown">{faq.question}</span>
+                  <motion.span
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${
+                      isOpen ? 'bg-brand-orange text-white' : 'bg-brand-cream text-brand-orange'
+                    }`}
+                  >
+                    <ChevronDown size={18} />
+                  </motion.span>
+                </button>
 
-                    <AnimatePresence>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.4 }}
-                          className="overflow-hidden px-6 pb-6"
-                        >
-                          <div className="h-px bg-slate-200 mb-4" />
-                          <p className="text-slate-700 text-base">
-                            {faq.answer}
-                          </p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <p className="px-5 pb-5 leading-relaxed text-brand-brown/70">
+                        {faq.answer}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
