@@ -57,7 +57,7 @@ const naira = (n: number) =>
 const title = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 
 /* ---------- data ---------- */
-type FeedInfo = { bags: number; pct: number };
+type FeedInfo = { bags: number; pct: number; category: "BROILER" | "LAYER" | "FISH" };
 
 async function getData() {
   const [
@@ -113,7 +113,7 @@ async function getData() {
     const bags = row?.bags ?? 0;
     const cap = row?.capacityBags ?? 0;
     const pct = cap > 0 ? (bags / cap) * 100 : bags > 0 ? 100 : 0;
-    return { bags, pct };
+    return { bags, pct, category: cat };
   };
 
   const deaths = totalDeaths._sum.quantity ?? 0;
@@ -149,7 +149,7 @@ function FeedStrip({ feed }: { feed: FeedInfo }) {
       className={`mt-3 flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-semibold sm:mt-4 sm:gap-2 sm:px-3 sm:text-xs ${tone}`}
     >
       <Wheat size={13} className="shrink-0" />
-      <span className="truncate">{fmtNum(bagsToKg(feed.bags))} kg left</span>
+      <span className="truncate">{fmtNum(bagsToKg(feed.bags, feed.category))} kg left</span>
       <span className="ml-auto shrink-0">{Math.round(feed.pct)}%</span>
     </div>
   );

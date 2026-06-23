@@ -10,14 +10,8 @@ import CTASection from "@/components/sections/CTASection";
 const founders = [
   {
     name: "Abiodun Young",
-    role: "Co-Founder",
+    role: "Founder",
     quote: "Excellence in execution turns bold visions into everyday reality.",
-    image: null,
-  },
-  {
-    name: "Philip Omoike",
-    role: "Co-Founder",
-    quote: "Innovation is about reimagining how we feed our communities sustainably.",
     image: null,
   },
 ];
@@ -155,14 +149,14 @@ export default function FarmPage() {
         <div className="mx-auto max-w-[1440px]">
           <div className="mb-8 text-center sm:mb-12">
             <span className="text-sm font-semibold uppercase tracking-wider text-brand-orange">
-              The people behind it
+              The person behind it
             </span>
             <h2 className="mt-2 text-3xl font-bold text-brand-brown sm:text-4xl">
-              Meet the founders
+              Meet the founder
             </h2>
           </div>
 
-          <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2">
+          <div className="mx-auto grid max-w-md gap-6">
             {founders.map((f, i) => (
               <motion.figure
                 key={f.name}

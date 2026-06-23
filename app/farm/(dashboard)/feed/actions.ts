@@ -42,9 +42,9 @@ export async function logFeedUsage(
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
 
   const { category: cat, kg, date, target } = parsed.data;
-  const bags = kgToBags(kg);
+  const bags = kgToBags(kg, cat);
   const stock = await prisma.feedStock.findUnique({ where: { category: cat } });
-  const currentKg = bagsToKg(stock?.bags ?? 0);
+  const currentKg = bagsToKg(stock?.bags ?? 0, cat);
   if (kg > currentKg) {
     return { error: `Only ${fmtNum(currentKg)} kg of ${cat.toLowerCase()} feed in stock.` };
   }
@@ -166,12 +166,12 @@ export async function updateFeedUsage(
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
 
   const { kg, date, target } = parsed.data;
-  const bags = kgToBags(kg);
   const old = await prisma.feedUsage.findUnique({ where: { id } });
   if (!old) return { error: "Entry not found." };
+  const bags = kgToBags(kg, old.category);
 
   const stock = await prisma.feedStock.findUnique({ where: { category: old.category } });
-  const availableKg = bagsToKg((stock?.bags ?? 0) + old.bags); // reverse the old usage first
+  const availableKg = bagsToKg((stock?.bags ?? 0) + old.bags, old.category); // reverse the old usage first
   if (kg > availableKg) {
     return { error: `Only ${fmtNum(availableKg)} kg of ${old.category.toLowerCase()} feed available.` };
   }
@@ -322,15 +322,15 @@ export async function setFeedStock(_prev: FeedState, formData: FormData): Promis
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
 
   const { category: cat, kg, capacityKg, lowKg } = parsed.data;
-  const bags = kgToBags(kg);
+  const bags = kgToBags(kg, cat);
   const existing = await prisma.feedStock.findUnique({ where: { category: cat } });
 
   // Capacity (gauge "full") must be at least the current amount.
   const capacityBags = Math.max(
     bags,
-    capacityKg != null ? kgToBags(capacityKg) : (existing?.capacityBags ?? bags)
+    capacityKg != null ? kgToBags(capacityKg, cat) : (existing?.capacityBags ?? bags)
   );
-  const lowThreshold = lowKg != null ? kgToBags(lowKg) : (existing?.lowThreshold ?? 2);
+  const lowThreshold = lowKg != null ? kgToBags(lowKg, cat) : (existing?.lowThreshold ?? 2);
 
   try {
     await prisma.feedStock.upsert({

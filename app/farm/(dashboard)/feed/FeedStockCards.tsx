@@ -4,7 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Wheat, Pencil, X } from "lucide-react";
 import { setFeedStock, type FeedState } from "./actions";
-import { bagsToKg, fmtNum } from "./units";
+import { bagsToKg, fmtNum, kgPerBag } from "./units";
 
 export type Stock = {
   category: "BROILER" | "LAYER" | "FISH";
@@ -61,19 +61,19 @@ function AdjustForm({ stock, onDone }: { stock: Stock; onDone: () => void }) {
       <input type="hidden" name="category" value={stock.category} />
       <label className="block">
         <span className={labelClass}>Current stock (kg)</span>
-        <input type="number" name="kg" step="0.5" min="0" required defaultValue={fmtNum(bagsToKg(stock.bags))} className={inputClass} />
+        <input type="number" name="kg" step="0.5" min="0" required defaultValue={fmtNum(bagsToKg(stock.bags, stock.category))} className={inputClass} />
       </label>
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
           <span className={labelClass}>Full capacity (kg)</span>
-          <input type="number" name="capacityKg" step="0.5" min="0" defaultValue={fmtNum(bagsToKg(stock.capacityBags))} className={inputClass} />
+          <input type="number" name="capacityKg" step="0.5" min="0" defaultValue={fmtNum(bagsToKg(stock.capacityBags, stock.category))} className={inputClass} />
         </label>
         <label className="block">
           <span className={labelClass}>Low-stock alert (kg)</span>
-          <input type="number" name="lowKg" step="0.5" min="0" defaultValue={fmtNum(bagsToKg(stock.lowThreshold))} className={inputClass} />
+          <input type="number" name="lowKg" step="0.5" min="0" defaultValue={fmtNum(bagsToKg(stock.lowThreshold, stock.category))} className={inputClass} />
         </label>
       </div>
-      <p className="text-[11px] text-muted-foreground">1 bag = 25 kg. Capacity sets the “full” mark on the gauge.</p>
+      <p className="text-[11px] text-muted-foreground">1 bag = {kgPerBag(stock.category)} kg. Capacity sets the “full” mark on the gauge.</p>
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
       {state.success && <p className="text-sm text-green-600">{state.success}</p>}
       <button
@@ -106,7 +106,7 @@ export default function FeedStockCards({ stocks }: { stocks: Stock[] }) {
                   <span className="ml-1 text-sm font-medium text-muted-foreground">bags</span>
                 </p>
                 <p className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground sm:text-xs">
-                  {title(s.category)} feed · {fmtNum(bagsToKg(s.bags))} kg
+                  {title(s.category)} feed · {fmtNum(bagsToKg(s.bags, s.category))} kg
                 </p>
               </div>
               <div className="flex flex-col items-center gap-1.5">

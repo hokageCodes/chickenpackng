@@ -36,6 +36,7 @@ async function getData() {
     label: g.label,
     breed: g.breed ?? "",
     arrivalLabel: fmtDate(g.arrivalDate),
+    arrivalISO: isoDate(g.arrivalDate),
     initialCount: g.initialCount,
     currentCount: g.currentCount,
     status: g.status,

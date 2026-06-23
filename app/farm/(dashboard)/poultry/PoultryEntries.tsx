@@ -11,6 +11,7 @@ export type Group = {
   label: string;
   breed: string;
   arrivalLabel: string;
+  arrivalISO: string;
   initialCount: number;
   currentCount: number;
   status: "ACTIVE" | "HARVESTING" | "CLOSED";
@@ -21,6 +22,22 @@ export type Group = {
 
 const today = () => new Date().toISOString().slice(0, 10);
 const EGG_GRADES = ["Small", "Medium", "Large", "Jumbo", "Mixed"];
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+// Age in whole weeks since arrival (broilers process ~6 wks; layers retire ~80 wks).
+function ageWeeks(iso: string): number | null {
+  if (!iso) return null;
+  const ms = Date.now() - new Date(iso).getTime();
+  return ms < 0 ? 0 : Math.floor(ms / WEEK_MS);
+}
+function readiness(type: Group["type"], age: number | null, status: Group["status"]) {
+  if (age == null || status === "CLOSED") return null;
+  if (type === "BROILER" && age >= 6)
+    return { label: "Ready to process", cls: "bg-orange-100 text-orange-700" };
+  if (type === "LAYER" && age >= 80)
+    return { label: "Due for disposal", cls: "bg-red-100 text-red-700" };
+  return null;
+}
 
 const inputClass =
   "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary";
@@ -113,6 +130,12 @@ function GroupForm({ initial, onDone }: { initial?: Group; onDone: () => void })
           <span className={labelClass}>Name</span>
           <input type="text" name="label" required defaultValue={initial?.label} placeholder="Batch A" className={inputClass} />
         </label>
+        {isEdit && (
+          <label className="block">
+            <span className={labelClass}>Arrival date</span>
+            <input type="date" name="arrivalDate" required defaultValue={initial?.arrivalISO} max={today()} className={inputClass} />
+          </label>
+        )}
         {!isEdit && (
           <>
             <label className="block">
@@ -286,6 +309,8 @@ export default function PoultryEntries({ groups }: { groups: Group[] }) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {paginated.map((g) => {
             const lost = g.initialCount - g.currentCount;
+            const age = ageWeeks(g.arrivalISO);
+            const ready = readiness(g.type, age, g.status);
             return (
               <div key={g.id} className="flex flex-col rounded-2xl border border-border bg-card p-5">
                 <div className="flex items-start justify-between gap-2">
@@ -293,6 +318,7 @@ export default function PoultryEntries({ groups }: { groups: Group[] }) {
                     <p className="truncate text-base font-bold">{g.label}</p>
                     <p className="text-xs text-muted-foreground">
                       {g.breed || (g.type === "BROILER" ? "Broiler" : "Layer")} · Arrived {g.arrivalLabel}
+                      {age != null ? ` · ${age} wk${age === 1 ? "" : "s"} old` : ""}
                     </p>
                   </div>
                   <span
@@ -314,6 +340,11 @@ export default function PoultryEntries({ groups }: { groups: Group[] }) {
                   <span className={"rounded-md px-1.5 py-0.5 font-semibold " + STATUS_STYLE[g.status]}>
                     {g.status.charAt(0) + g.status.slice(1).toLowerCase()}
                   </span>
+                  {ready && (
+                    <span className={"rounded-md px-1.5 py-0.5 font-semibold " + ready.cls}>
+                      {ready.label}
+                    </span>
+                  )}
                   {lost > 0 && <span className="text-red-600">−{lost} lost</span>}
                   {g.type === "LAYER" && (
                     <span className="flex items-center gap-1 text-muted-foreground">
