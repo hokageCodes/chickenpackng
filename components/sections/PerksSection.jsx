@@ -6,7 +6,7 @@ const PERKS = [
   {
     icon: CreditCard,
     title: 'Multiple Payment Options',
-    description: 'Pay your way — bank transfer, pay-on-delivery cash, or online with Paystack.',
+    description: 'Pay your way, bank transfer, pay-on-delivery cash, or online with Paystack.',
   },
   {
     icon: Truck,
@@ -16,7 +16,7 @@ const PERKS = [
   {
     icon: BadgeCheck,
     title: 'Farm-Fresh Quality',
-    description: 'Straight from our farm — clean, fresh, and never compromised.',
+    description: 'Straight from our farm, clean, fresh, and never compromised.',
   },
   {
     icon: Gift,
@@ -52,7 +52,7 @@ export default function PerksSection() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group rounded-2xl border border-brand-tan/50 bg-white p-6 transition-shadow hover:shadow-lg"
               >
-                <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-orange/10 text-brand-orange transition-colors group-hover:bg-brand-orange group-hover:text-white">
+                <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-orange text-white transition-colors group-hover:bg-brand-brown">
                   <Icon className="h-6 w-6" />
                 </span>
                 <h3 className="text-lg font-bold text-brand-brown">{perk.title}</h3>

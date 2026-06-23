@@ -2,60 +2,125 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
+import { Mail, Phone, MapPin } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
+import { SITE, NAV_LINKS, whatsappHref } from '@/lib/site';
 
 export default function Footer() {
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="bg-[#191919] py-14 px-2 sm:px-8 mt-24 md:pl-32">
-      <div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-[#3D3C42]">
+    <footer className="border-t border-brand-tan/50 bg-white text-brand-brown/70">
+      <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-10 lg:px-16">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+          {/* Brand */}
+          <div>
+            <Link href="/" className="flex items-center gap-2.5">
+              <span className="relative h-12 w-12">
+                <Image src="/assets/Logo.png" alt="Protein Pack" fill className="object-contain" />
+              </span>
+              <span className="text-xl font-bold text-brand-brown">Protein Pack</span>
+            </Link>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed">
+              Farm-fresh chicken, fish and eggs, raised, processed and delivered across Lagos.
+            </p>
+            <a
+              href={whatsappHref()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-brown"
+            >
+              <FaWhatsapp size={16} />
+              Order on WhatsApp
+            </a>
+          </div>
 
-        {/* Logo and Description */}
-        <div className="flex flex-col items-start">
-          <Link href="/" className="flex items-center gap-4 mb-5">
-            <div className="relative h-14 w-14">
-              <Image src="/assets/Logo.png" alt="Chicken Pack Logo" fill className="object-contain" />
-            </div>
-            <span className="text-2xl font-bold text-white">Chicken Pack</span>
-          </Link>
-          <p className="text-base text-gray-400 leading-relaxed max-w-sm">
-            Fresh. Tasty. Affordable. We deliver chicken goodness straight to your doorstep.
+          {/* Explore */}
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-brand-orange">
+              Explore
+            </h4>
+            <ul className="mt-4 space-y-3 text-sm">
+              {NAV_LINKS.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="transition-colors hover:text-brand-orange">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-brand-orange">
+              Contact
+            </h4>
+            <ul className="mt-4 space-y-3 text-sm">
+              <li className="flex items-center gap-3">
+                <MapPin size={16} className="flex-shrink-0 text-brand-orange" />
+                Lagos, Nigeria
+              </li>
+              <li>
+                <a
+                  href={`tel:+${SITE.whatsapp}`}
+                  className="flex items-center gap-3 transition-colors hover:text-brand-orange"
+                >
+                  <Phone size={16} className="flex-shrink-0 text-brand-orange" />
+                  +{SITE.whatsapp}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="mailto:hello@proteinpack.ng"
+                  className="flex items-center gap-3 transition-colors hover:text-brand-orange"
+                >
+                  <Mail size={16} className="flex-shrink-0 text-brand-orange" />
+                  hello@proteinpack.ng
+                </a>
+              </li>
+              <li>
+                <a
+                  href={whatsappHref()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 transition-colors hover:text-brand-orange"
+                >
+                  <FaWhatsapp size={16} className="flex-shrink-0 text-brand-orange" />
+                  Chat with us
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Hours */}
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-brand-orange">
+              Opening hours
+            </h4>
+            <ul className="mt-4 space-y-3 text-sm">
+              <li className="flex justify-between gap-4">
+                <span>Mon to Fri</span>
+                <span className="text-brand-brown/50">8am to 6pm</span>
+              </li>
+              <li className="flex justify-between gap-4">
+                <span>Saturday</span>
+                <span className="text-brand-brown/50">9am to 5pm</span>
+              </li>
+              <li className="flex justify-between gap-4">
+                <span>Sunday</span>
+                <span className="text-brand-brown/50">Closed</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-12 flex flex-col gap-3 border-t border-brand-tan/50 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm">
+            © {year} Protein Pack, Sinum Agro Food Technology. All rights reserved.
           </p>
+          <p className="text-xs text-brand-brown/40">Fresh from our farm to your table.</p>
         </div>
-
-        {/* Quick Links */}
-        <div>
-          <h4 className="font-semibold text-xl mb-5 text-[#7F5283]">Quick Links</h4>
-          <ul className="space-y-4 text-lg text-white">
-            <li><Link href="/" className="hover:text-[#7F5283]">Home</Link></li>
-            <li><Link href="#products" className="hover:text-[#7F5283]">Products</Link></li>
-            <li><Link href="#blog" className="hover:text-[#7F5283]">Blog</Link></li>
-            <li><Link href="#company" className="hover:text-[#7F5283]">Company</Link></li>
-          </ul>
-        </div>
-
-        {/* Contact Info with Icons */}
-        <div>
-          <h4 className="font-semibold text-xl mb-5 text-[#7F5283]">Contact Us</h4>
-          <ul className="space-y-4 text-lg text-white">
-            <li className="flex items-center gap-3">
-              <FiMail className="text-white" />
-              <a href="mailto:support@chickenpack.com" className="hover:text-[#7F5283]">support@chickenpack.com</a>
-            </li>
-            <li className="flex items-center gap-3">
-              <FiPhone className="text-white" />
-              <a href="tel:+2348000000000" className="hover:text-[#7F5283]">+234 800 000 0000</a>
-            </li>
-            <li className="flex items-center gap-3">
-              <FiMapPin className="text-white" />
-              <span>Lagos, Nigeria</span>
-            </li>
-          </ul>
-        </div>
-
-      </div>
-
-      <div className="text-center text-base text-gray-400 mt-14">
-        © 2025 Chicken Pack. All rights reserved.
       </div>
     </footer>
   );

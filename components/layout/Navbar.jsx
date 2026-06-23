@@ -54,7 +54,7 @@ export default function Navbar() {
         }`}
       >
         <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-4 sm:px-8 lg:grid lg:grid-cols-3 lg:px-12">
-          {/* Left — nav links (desktop) */}
+          {/* Left, nav links (desktop) */}
           <nav className="hidden items-center gap-8 lg:flex">
             {NAV_LINKS.map((item) => (
               <Link
@@ -76,7 +76,7 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Center — logo */}
+          {/* Center, logo */}
           <Link href="/" className="group flex items-center gap-2.5 lg:justify-center">
             <span className="relative h-11 w-11 transition-transform group-hover:scale-105 sm:h-12 sm:w-12">
               <Image src="/assets/Logo.png" alt="Protein Pack" fill className="object-contain" />
@@ -90,7 +90,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Right — cart + CTA (desktop) / cart + menu (mobile) */}
+          {/* Right, cart + CTA (desktop) / cart + menu (mobile) */}
           <div className="flex items-center justify-end gap-2 sm:gap-4">
             {/* Mobile cart (opens modal) */}
             <button

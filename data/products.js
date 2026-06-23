@@ -35,7 +35,7 @@ export const products = [
         { label: "5kg", price: 12000 }
       ],
       image: "/assets/wings.jpg",
-      description: "Crispy golden wings — crowd-favorite for all occasions."
+      description: "Crispy golden wings, crowd-favorite for all occasions."
     },
     {
       id: "breast-2kg",
@@ -47,7 +47,7 @@ export const products = [
         { label: "5kg", price: 11700 }
       ],
       image: "/assets/chi.webp",
-      description: "Lean and healthy breast cuts — high in protein, low in fat."
+      description: "Lean and healthy breast cuts, high in protein, low in fat."
     }
   ];
   
