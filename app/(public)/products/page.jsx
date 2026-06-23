@@ -4,11 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Drumstick, Fish, Egg } from "lucide-react";
+import { Search, Drumstick, Fish, Egg, ShoppingCart, Minus, Plus, Check } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
 import { popularProducts, PRODUCT_TYPES } from "@/data/popular";
 import { whatsappHref } from "@/lib/site";
+import { useCart } from "@/contexts/CartContext";
 import FAQ from "@/components/sections/FAQSection";
 
 const FORMS = ["All", "Live", "Processed", "Fresh"];
@@ -47,6 +48,17 @@ function ProductMedia({ product }) {
 }
 
 function ProductCard({ product }) {
+  const { addItem } = useCart();
+  const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
+  const isBulk = Boolean(product.minNote);
+
+  const handleAdd = () => {
+    addItem(product, qty);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  };
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }}
@@ -66,23 +78,65 @@ function ProductCard({ product }) {
           {product.blurb}
         </p>
 
-        <div className="mt-auto flex items-end justify-between pt-5">
-          <div>
-            <span className="text-xs text-brand-brown/50">{product.minNote ?? "from"}</span>
-            <p className="text-xl font-bold text-brand-orange">
-              ₦{product.price.toLocaleString()}
-              <span className="text-sm font-medium text-brand-brown/50">/{product.unit}</span>
-            </p>
+        <div className="mt-auto pt-5">
+          <div className="flex items-end justify-between">
+            <div>
+              <span className="text-xs text-brand-brown/50">{product.minNote ?? "from"}</span>
+              <p className="text-xl font-bold text-brand-orange">
+                ₦{product.price.toLocaleString()}
+                <span className="text-sm font-medium text-brand-brown/50">/{product.unit}</span>
+              </p>
+            </div>
+
+            {!isBulk && (
+              <div className="flex items-center rounded-full border border-brand-tan/70">
+                <button
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  aria-label="Decrease quantity"
+                  className="px-2.5 py-1.5 text-brand-brown transition-colors hover:text-brand-orange"
+                >
+                  <Minus size={14} />
+                </button>
+                <span className="w-7 text-center text-sm font-bold text-brand-brown">{qty}</span>
+                <button
+                  onClick={() => setQty((q) => q + 1)}
+                  aria-label="Increase quantity"
+                  className="px-2.5 py-1.5 text-brand-brown transition-colors hover:text-brand-orange"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+            )}
           </div>
-          <a
-            href={whatsappHref(`Hello Protein Pack! I'd like to order ${product.name}.`)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full bg-brand-orange px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-brown"
-          >
-            <FaWhatsapp size={15} />
-            Order
-          </a>
+
+          {isBulk ? (
+            <a
+              href={whatsappHref(`Hello Protein Pack! I'd like a quote for ${product.name}.`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-brand-orange py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-brown"
+            >
+              <FaWhatsapp size={16} />
+              Request a quote
+            </a>
+          ) : (
+            <button
+              onClick={handleAdd}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-brand-orange py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-brown"
+            >
+              {added ? (
+                <>
+                  <Check size={16} />
+                  Added to cart
+                </>
+              ) : (
+                <>
+                  <ShoppingCart size={16} />
+                  Add to cart
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </motion.article>

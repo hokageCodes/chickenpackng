@@ -7,7 +7,6 @@ import Image from 'next/image';
 import { FaWhatsapp } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useCart } from '../../contexts/CartContext';
-import { products } from '@/data/products';
 import { NAV_LINKS, whatsappHref } from '@/lib/site';
 
 export default function Navbar() {
@@ -16,7 +15,7 @@ export default function Navbar() {
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
   const pathname = usePathname();
 
-  const { cart, cartCount, removeFromCart } = useCart();
+  const { items, cartCount, subtotal, removeItem } = useCart();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -32,12 +31,6 @@ export default function Navbar() {
   // Over the (dark) hero the bar is transparent → use the light side of the
   // palette. Once scrolled (or the mobile menu is open) the bar is cream → brown.
   const textDark = scrolled || isOpen;
-
-  const cartTotal = Object.entries(cart).reduce((total, [, item]) => {
-    const prod = products.find((p) => p.id === item.productId);
-    const size = prod?.sizes.find((s) => s.label === item.size);
-    return total + (size?.price || 0) * item.quantity;
-  }, 0);
 
   const cartBadge =
     cartCount > 0 ? (
@@ -190,52 +183,52 @@ export default function Navbar() {
             </div>
 
             <div className="max-h-[50vh] overflow-y-auto">
-              {Object.keys(cart).length === 0 ? (
+              {items.length === 0 ? (
                 <div className="px-4 py-8 text-center text-brand-brown/60">
                   <ShoppingCart size={40} className="mx-auto mb-3 text-brand-tan" />
                   <p className="text-sm">Your cart is empty</p>
                 </div>
               ) : (
-                Object.entries(cart).map(([key, item]) => {
-                  const prod = products.find((p) => p.id === item.productId);
-                  const size = prod?.sizes.find((s) => s.label === item.size);
-                  if (!prod || !size) return null;
-
-                  return (
-                    <div
-                      key={key}
-                      className="flex items-center gap-3 border-b border-brand-tan/30 px-4 py-3 hover:bg-brand-cream/60"
-                    >
-                      <div className="relative h-12 w-12 flex-shrink-0">
-                        <Image src={prod.image} alt={prod.name} fill className="rounded object-cover" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{prod.name}</p>
-                        <p className="text-xs text-brand-brown/60">
-                          {item.size} × {item.quantity}
-                        </p>
-                        <p className="text-sm font-bold text-brand-orange">
-                          ₦{(size.price * item.quantity).toLocaleString()}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => removeFromCart(key)}
-                        className="rounded px-2 py-1 text-xs font-medium text-red-500 transition-colors hover:bg-red-50 hover:text-red-700"
-                      >
-                        Remove
-                      </button>
+                items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 border-b border-brand-tan/30 px-4 py-3 hover:bg-brand-cream/60"
+                  >
+                    <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded bg-brand-cream">
+                      {item.image ? (
+                        <Image src={item.image} alt={item.name} fill className="object-cover" />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center text-brand-tan">
+                          <ShoppingCart size={18} />
+                        </span>
+                      )}
                     </div>
-                  );
-                })
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{item.name}</p>
+                      <p className="text-xs text-brand-brown/60">
+                        ₦{item.price.toLocaleString()}/{item.unit} × {item.qty}
+                      </p>
+                      <p className="text-sm font-bold text-brand-orange">
+                        ₦{(item.price * item.qty).toLocaleString()}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="rounded px-2 py-1 text-xs font-medium text-red-500 transition-colors hover:bg-red-50 hover:text-red-700"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))
               )}
             </div>
 
-            {Object.keys(cart).length > 0 && (
+            {items.length > 0 && (
               <div className="border-t border-brand-tan/40 bg-brand-cream px-4 py-3">
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="font-medium">Total:</span>
+                  <span className="font-medium">Subtotal:</span>
                   <span className="text-lg font-bold text-brand-orange">
-                    ₦{cartTotal.toLocaleString()}
+                    ₦{subtotal.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex gap-2">

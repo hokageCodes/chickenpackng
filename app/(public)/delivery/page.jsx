@@ -5,32 +5,8 @@ import { MapPin, Clock, MessageCircle, Wallet } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
 import { whatsappHref } from "@/lib/site";
+import { zones } from "@/data/delivery";
 import CTASection from "@/components/sections/CTASection";
-
-// Placeholder zones, edit fees / areas / ETA here (or wire to DeliveryZone later).
-const zones = [
-  {
-    name: "Lagos Mainland",
-    areas: "Yaba, Surulere, Ikeja, Maryland, Gbagada, Ojota and nearby areas.",
-    fee: 2500,
-    minOrder: 10000,
-    eta: "Same day",
-  },
-  {
-    name: "Lagos Island",
-    areas: "Lekki, Victoria Island, Ikoyi, Ajah and nearby areas.",
-    fee: 3500,
-    minOrder: 15000,
-    eta: "Same day / next day",
-  },
-  {
-    name: "Outside Lagos",
-    areas: "Ogun, Ibadan and beyond, by arrangement.",
-    fee: null,
-    minOrder: 50000,
-    eta: "Scheduled",
-  },
-];
 
 const steps = [
   {
