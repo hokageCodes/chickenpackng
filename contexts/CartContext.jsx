@@ -1,102 +1,85 @@
-// context/CartContext.tsx
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 const CartContext = createContext();
+const STORAGE_KEY = "proteinpack-cart";
 
 export const CartProvider = ({ children }) => {
+  // cart: { [id]: { id, name, type, unit, price, image, qty } }
   const [cart, setCart] = useState({});
-  const [cartCount, setCartCount] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load cart from localStorage on mount
   useEffect(() => {
     try {
-      const savedCart = localStorage.getItem("chickenpack-cart");
-      if (savedCart) {
-        const parsedCart = JSON.parse(savedCart);
-        setCart(parsedCart);
-      }
-    } catch (error) {
-      console.error("Error loading cart from localStorage:", error);
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setCart(JSON.parse(saved));
+    } catch (err) {
+      console.error("Error loading cart:", err);
     } finally {
       setIsLoaded(true);
     }
   }, []);
 
-  // Save cart to localStorage whenever cart changes (but only after initial load)
   useEffect(() => {
-    if (isLoaded) {
-      try {
-        localStorage.setItem("chickenpack-cart", JSON.stringify(cart));
-      } catch (error) {
-        console.error("Error saving cart to localStorage:", error);
-      }
+    if (!isLoaded) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    } catch (err) {
+      console.error("Error saving cart:", err);
     }
   }, [cart, isLoaded]);
 
-  // Sync cart count when cart changes
-  useEffect(() => {
-    const total = Object.values(cart).reduce(
-      (acc, item) => acc + item.quantity,
-      0
-    );
-    setCartCount(total);
-  }, [cart]);
-
-  const addToCart = (productId, size, quantity, name, image) => {
-    const key = `${productId}-${size}`;
-    setCart((prev) => ({
-      ...prev,
-      [key]: {
-        productId,
-        size,
-        quantity: (prev[key]?.quantity || 0) + quantity,
-        name,
-        image,
-      },
-    }));
+  const addItem = (product, qty = 1) => {
+    setCart((prev) => {
+      const existing = prev[product.id];
+      return {
+        ...prev,
+        [product.id]: {
+          id: product.id,
+          name: product.name,
+          type: product.type,
+          unit: product.unit,
+          price: product.price,
+          image: product.image ?? null,
+          qty: (existing?.qty || 0) + qty,
+        },
+      };
+    });
   };
 
-  const removeFromCart = (key) => {
-    const updated = { ...cart };
-    delete updated[key];
-    setCart(updated);
+  const removeItem = (id) => {
+    setCart((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
   };
 
-  const updateQuantity = (key, newQuantity) => {
-    if (newQuantity <= 0) {
-      removeFromCart(key);
-      return;
-    }
-    
-    setCart((prev) => ({
-      ...prev,
-      [key]: {
-        ...prev[key],
-        quantity: newQuantity,
-      },
-    }));
+  const updateQty = (id, qty) => {
+    if (qty <= 0) return removeItem(id);
+    setCart((prev) => ({ ...prev, [id]: { ...prev[id], qty } }));
   };
 
-  const clearCart = () => {
-    setCart({});
-  };
+  const clearCart = () => setCart({});
 
-  // Don't render children until cart is loaded from localStorage
-  if (!isLoaded) {
-    return <div>Loading...</div>; // Or your loading component
-  }
+  const items = useMemo(() => Object.values(cart), [cart]);
+  const cartCount = useMemo(() => items.reduce((n, i) => n + i.qty, 0), [items]);
+  const subtotal = useMemo(
+    () => items.reduce((sum, i) => sum + i.price * i.qty, 0),
+    [items]
+  );
 
   return (
     <CartContext.Provider
       value={{
         cart,
+        items,
         cartCount,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
+        subtotal,
+        addItem,
+        updateQty,
+        removeItem,
         clearCart,
         isLoaded,
       }}
@@ -108,8 +91,6 @@ export const CartProvider = ({ children }) => {
 
 export const useCart = () => {
   const context = useContext(CartContext);
-  if (!context) {
-    throw new Error("useCart must be used within a CartProvider");
-  }
+  if (!context) throw new Error("useCart must be used within a CartProvider");
   return context;
 };

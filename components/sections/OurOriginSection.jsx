@@ -10,46 +10,10 @@ const highlights = [
   { icon: Truck, label: 'Lagos-wide delivery' },
 ];
 
-const founders = [
-  {
-    name: 'Abiodun Young',
-    role: 'Co-Founder',
-    quote: 'Excellence in execution turns bold visions into everyday reality.',
-    image: null,
-  },
-  {
-    name: 'Philip Omoike',
-    role: 'Co-Founder',
-    quote: 'Innovation is about reimagining how we feed our communities sustainably.',
-    image: null,
-  },
-];
-
-function Avatar({ name, image }) {
-  if (image) {
-    return (
-      <span className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-full">
-        <Image src={image} alt={name} fill className="object-cover" />
-      </span>
-    );
-  }
-  const initials = name
-    .split(' ')
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('');
-  return (
-    <span className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-brand-orange text-lg font-bold text-white">
-      {initials}
-    </span>
-  );
-}
-
 export default function OurOriginSection() {
   return (
     <section className="bg-brand-cream py-16 sm:py-24">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-10 lg:px-16">
-        {/* Origin story */}
         <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
@@ -92,42 +56,6 @@ export default function OurOriginSection() {
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
-
-        {/* Founders */}
-        <div className="mt-16 sm:mt-24">
-          <div className="mb-8 text-center">
-            <span className="text-sm font-semibold uppercase tracking-wider text-brand-orange">
-              The people behind it
-            </span>
-            <h3 className="mt-2 text-2xl font-bold text-brand-brown sm:text-3xl">
-              Meet the founders
-            </h3>
-          </div>
-
-          <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2">
-            {founders.map((f, i) => (
-              <motion.figure
-                key={f.name}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="rounded-2xl border border-brand-tan/50 bg-white p-6 shadow-sm"
-              >
-                <div className="flex items-center gap-4">
-                  <Avatar name={f.name} image={f.image} />
-                  <figcaption>
-                    <p className="text-lg font-bold text-brand-brown">{f.name}</p>
-                    <p className="text-sm font-semibold text-brand-orange">{f.role}</p>
-                  </figcaption>
-                </div>
-                <blockquote className="mt-4 italic leading-relaxed text-brand-brown/60">
-                  “{f.quote}”
-                </blockquote>
-              </motion.figure>
-            ))}
           </div>
         </div>
       </div>
