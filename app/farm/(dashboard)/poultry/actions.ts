@@ -66,6 +66,7 @@ export async function createGroup(
 const updateSchema = z.object({
   label: z.string().trim().min(1, "Name is required"),
   breed: z.string().trim().optional(),
+  arrivalDate: z.string().min(1, "Arrival date is required"),
   expectedHarvest: z.string().optional(),
   houseName: z.string().trim().optional(),
   status: z.enum(["ACTIVE", "HARVESTING", "CLOSED"]),
@@ -82,13 +83,14 @@ export async function updateGroup(
   const parsed = updateSchema.safeParse({
     label: formData.get("label"),
     breed: formData.get("breed"),
+    arrivalDate: formData.get("arrivalDate"),
     expectedHarvest: formData.get("expectedHarvest"),
     houseName: formData.get("houseName"),
     status: formData.get("status"),
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
 
-  const { label, breed, expectedHarvest, houseName, status } = parsed.data;
+  const { label, breed, arrivalDate, expectedHarvest, houseName, status } = parsed.data;
 
   try {
     await prisma.animalGroup.update({
@@ -96,6 +98,7 @@ export async function updateGroup(
       data: {
         label,
         breed: breed || null,
+        arrivalDate: new Date(arrivalDate),
         expectedHarvest: expectedHarvest ? new Date(expectedHarvest) : null,
         houseName: houseName || null,
         status,

@@ -105,7 +105,7 @@ function UsageForm({
             step="0.5"
             min="0.5"
             required
-            defaultValue={initial ? fmtNum(bagsToKg(initial.bags)) : undefined}
+            defaultValue={initial ? fmtNum(bagsToKg(initial.bags, initial.category)) : undefined}
             placeholder="12.5"
             className={inputClass}
           />
@@ -376,7 +376,7 @@ export default function FeedEntries({
                 <p className="truncate text-sm font-medium">
                   {e.kind === "purchase"
                     ? `${fmtNum(e.bags)} bag${e.bags !== 1 ? "s" : ""} bought`
-                    : `${fmtNum(bagsToKg(e.bags))} kg used`}{" "}
+                    : `${fmtNum(bagsToKg(e.bags, e.category))} kg used`}{" "}
                   · {title(e.category)}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
