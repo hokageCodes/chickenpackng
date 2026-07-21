@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X, Pencil, Trash2, Egg, ChevronLeft, ChevronRight } from "lucide-react";
 import { createGroup, updateGroup, deleteGroup, logEggs, type PoultryState } from "./actions";
+import EggProductionChart, { type EggChartData } from "./EggProductionChart";
 
 export type Group = {
   id: string;
@@ -169,7 +170,17 @@ function GroupForm({ initial, onDone }: { initial?: Group; onDone: () => void })
   );
 }
 
-function EggForm({ group, onDone }: { group: Group; onDone: () => void }) {
+function EggForm({
+  group,
+  layers,
+  date,
+  onDone,
+}: {
+  group: Group | null;
+  layers: Group[];
+  date: string;
+  onDone: () => void;
+}) {
   const router = useRouter();
   const [state, action, pending] = useActionState<PoultryState, FormData>(logEggs, {});
   useEffect(() => {
@@ -181,10 +192,27 @@ function EggForm({ group, onDone }: { group: Group; onDone: () => void }) {
 
   return (
     <form action={action} className="space-y-3">
-      <input type="hidden" name="groupId" value={group.id} />
-      <p className="text-sm text-muted-foreground">
-        Logging eggs for <span className="font-semibold text-foreground">{group.label}</span>
-      </p>
+      {group ? (
+        <>
+          <input type="hidden" name="groupId" value={group.id} />
+          <p className="text-sm text-muted-foreground">
+            Logging eggs for <span className="font-semibold text-foreground">{group.label}</span>
+          </p>
+        </>
+      ) : (
+        // Opened from a missing-day chip, so no flock is implied yet.
+        <label className="block">
+          <span className={labelClass}>Flock</span>
+          <select name="groupId" required defaultValue={layers[0]?.id ?? ""} className={inputClass}>
+            {layers.length === 0 && <option value="">No layer flocks yet</option>}
+            {layers.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
           <span className={labelClass}>Eggs collected</span>
@@ -207,7 +235,7 @@ function EggForm({ group, onDone }: { group: Group; onDone: () => void }) {
         </label>
         <label className="block">
           <span className={labelClass}>Date</span>
-          <input type="date" name="date" required defaultValue={today()} max={today()} className={inputClass} />
+          <input type="date" name="date" required defaultValue={date} max={today()} className={inputClass} />
         </label>
       </div>
       <Feedback state={state} />
@@ -224,11 +252,20 @@ const STATUS_STYLE: Record<Group["status"], string> = {
   CLOSED: "bg-muted text-muted-foreground",
 };
 
-export default function PoultryEntries({ groups }: { groups: Group[] }) {
+export default function PoultryEntries({
+  groups,
+  eggChart,
+}: {
+  groups: Group[];
+  eggChart: EggChartData;
+}) {
   const router = useRouter();
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Group | null>(null);
-  const [egging, setEgging] = useState<Group | null>(null);
+  // `group: null` means "opened from a missing-day chip" — the form asks which
+  // flock. `date` prefills the entry so backfilling is one tap from the chart.
+  const [egging, setEgging] = useState<{ group: Group | null; date: string } | null>(null);
+  const layers = groups.filter((g) => g.type === "LAYER" && g.status !== "CLOSED");
   const [filter, setFilter] = useState<"ALL" | "BROILER" | "LAYER">("ALL");
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -263,7 +300,12 @@ export default function PoultryEntries({ groups }: { groups: Group[] }) {
   ];
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
+      <EggProductionChart
+        data={eggChart}
+        onLogDate={(iso) => setEgging({ group: layers.length === 1 ? layers[0] : null, date: iso })}
+      />
+
       <div className="flex items-center justify-between gap-2">
         <select
           value={filter}
@@ -356,7 +398,7 @@ export default function PoultryEntries({ groups }: { groups: Group[] }) {
                 <div className="mt-4 flex items-center gap-2 border-t border-border pt-3">
                   {g.type === "LAYER" && (
                     <button
-                      onClick={() => setEgging(g)}
+                      onClick={() => setEgging({ group: g, date: today() })}
                       className="inline-flex items-center gap-1 rounded-lg bg-gold/20 px-2.5 py-1.5 text-xs font-semibold text-gold-foreground transition-colors hover:bg-gold/30"
                     >
                       <Egg size={14} /> Log eggs
@@ -425,7 +467,12 @@ export default function PoultryEntries({ groups }: { groups: Group[] }) {
       )}
       {egging && (
         <Modal title="Log eggs" onClose={() => setEgging(null)}>
-          <EggForm group={egging} onDone={() => setEgging(null)} />
+          <EggForm
+            group={egging.group}
+            layers={layers}
+            date={egging.date}
+            onDone={() => setEgging(null)}
+          />
         </Modal>
       )}
     </section>

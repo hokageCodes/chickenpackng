@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
+import { eggsToCrates, fmtCrates } from "@/lib/farm/produce";
 
 export type PoultryState = { error?: string; success?: string };
 
@@ -166,20 +167,46 @@ export async function logEggs(
 
   const { groupId, date, collected, grade, broken } = parsed.data;
 
+  if (broken > collected) return { error: "Broken can't exceed the number collected." };
+
+  // Only whole, sellable eggs become stock — broken ones never reach a crate.
+  const sellable = collected - broken;
+  const crates = eggsToCrates(sellable);
+  const label = `group:${groupId}:EGGS`;
+
   try {
-    await prisma.eggLog.create({
-      data: {
-        groupId,
-        date: new Date(date),
-        collected,
-        grade: grade || null,
-        broken,
-        createdById: session.user.id,
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.eggLog.create({
+        data: {
+          groupId,
+          date: new Date(date),
+          collected,
+          grade: grade || null,
+          broken,
+          createdById: session.user.id,
+        },
+      });
+
+      if (crates > 0) {
+        const inv = await tx.inventory.findFirst({ where: { label } });
+        if (inv) {
+          await tx.inventory.update({
+            where: { id: inv.id },
+            data: { quantity: { increment: crates } },
+          });
+        } else {
+          await tx.inventory.create({
+            data: { kind: "EGGS", label, quantity: crates, unit: "crate" },
+          });
+        }
+      }
     });
   } catch {
     return { error: "Could not save egg log. Please try again." };
   }
   done();
-  return { success: `Logged ${collected} egg${collected !== 1 ? "s" : ""}.` };
+  revalidatePath("/farm/harvest");
+  return {
+    success: `Logged ${collected} egg${collected !== 1 ? "s" : ""} — ${fmtCrates(sellable)} to stock.`,
+  };
 }

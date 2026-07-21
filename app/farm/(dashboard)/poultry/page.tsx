@@ -1,6 +1,8 @@
 import { Bird, Egg, LayoutGrid, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/db";
+import { eggSeries } from "@/lib/farm/eggs";
 import PoultryEntries, { type Group } from "./PoultryEntries";
+import type { EggChartData } from "./EggProductionChart";
 
 export const dynamic = "force-dynamic";
 
@@ -19,14 +21,23 @@ const fmtDate = (d: Date) =>
   }).format(new Date(d));
 
 async function getData() {
-  const [groups, eggByGroup, broilerAgg, layerAgg, activeCount, eggs7] = await Promise.all([
+  const [groups, eggByGroup, broilerAgg, layerAgg, activeCount, eggs7, series] = await Promise.all([
     prisma.animalGroup.findMany({ orderBy: [{ status: "asc" }, { arrivalDate: "desc" }] }),
     prisma.eggLog.groupBy({ by: ["groupId"], _sum: { collected: true }, where: { date: { gte: daysAgo(7) } } }),
     prisma.animalGroup.aggregate({ _sum: { currentCount: true }, where: { type: "BROILER", status: { not: "CLOSED" } } }),
     prisma.animalGroup.aggregate({ _sum: { currentCount: true }, where: { type: "LAYER", status: { not: "CLOSED" } } }),
     prisma.animalGroup.count({ where: { status: { not: "CLOSED" } } }),
     prisma.eggLog.aggregate({ _sum: { collected: true }, where: { date: { gte: daysAgo(7) } } }),
+    eggSeries(),
   ]);
+
+  const eggChart: EggChartData = {
+    daily: series.daily,
+    monthly: series.monthly,
+    missingDays: series.missingDays,
+    avgPerLoggedDay: series.avgPerLoggedDay,
+    bestDay: series.bestDay,
+  };
 
   const eggMap = new Map(eggByGroup.map((e) => [e.groupId, e._sum.collected ?? 0]));
 
@@ -51,6 +62,7 @@ async function getData() {
     layers: layerAgg._sum.currentCount ?? 0,
     active: activeCount,
     eggs7: eggs7._sum.collected ?? 0,
+    eggChart,
   };
 }
 
@@ -99,7 +111,7 @@ export default async function PoultryPage() {
         <StatCard icon={Egg} chip="bg-gold/20 text-gold-foreground" label="Eggs · 7 days" value={d.eggs7} />
       </section>
 
-      <PoultryEntries groups={d.groups} />
+      <PoultryEntries groups={d.groups} eggChart={d.eggChart} />
     </div>
   );
 }

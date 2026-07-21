@@ -80,6 +80,35 @@ p, span {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%
   }
+
+  /* ── Data-viz tokens ──────────────────────────────────────
+     Validated categorical slots + chart chrome for the FarmOS
+     charts. Kept separate from the brand --chart-N ramp above,
+     which is a decorative warm palette and is not colourblind-
+     safe. Dark steps are re-picked for the dark surface, not
+     flipped. */
+  .viz-root {
+    --series-1: #2a78d6; /* blue   — eggs, revenue, broiler */
+    --series-2: #eb6834; /* orange — layer */
+    --series-3: #1baf7a; /* aqua   — fish */
+    --viz-positive: #2a78d6;
+    --viz-negative: #d03b3b;
+    --viz-grid: #e1e0d9;
+    --viz-axis: #c3c2b7;
+    --viz-muted: #898781;
+    --viz-gap: #d9d7cf; /* "no entry" placeholder mark */
+  }
+  .dark .viz-root {
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --viz-positive: #3987e5;
+    --viz-negative: #e66767;
+    --viz-grid: #2c2c2a;
+    --viz-axis: #383835;
+    --viz-muted: #898781;
+    --viz-gap: #3a3a37;
+  }
 }
 
 /* url('https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2139&q=80 */
