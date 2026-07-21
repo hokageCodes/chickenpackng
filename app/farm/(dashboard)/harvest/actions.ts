@@ -19,6 +19,43 @@ function done() {
   revalidatePath("/farm");
 }
 
+/* ---------- farm-gate price list ---------- */
+
+const priceSchema = z.object({
+  kind: z.enum(["EGGS", "FRESH_FISH", "SMOKED_FISH", "FROZEN_CHICKEN"]),
+  unit: z.string().trim().min(1),
+  priceNGN: z.coerce.number().nonnegative("Price can't be negative"),
+});
+
+export async function setFarmPrice(_prev: HarvestState, formData: FormData): Promise<HarvestState> {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "Not authenticated." };
+
+  const parsed = priceSchema.safeParse({
+    kind: formData.get("kind"),
+    unit: formData.get("unit"),
+    priceNGN: formData.get("priceNGN"),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+
+  const { kind, unit, priceNGN } = parsed.data;
+
+  try {
+    await prisma.farmPrice.upsert({
+      where: { kind },
+      update: { unit, priceNGN },
+      create: { kind, unit, priceNGN },
+    });
+  } catch {
+    return { error: "Could not save the price. Please try again." };
+  }
+
+  done();
+  revalidatePath("/farm/finance");
+  revalidatePath("/farm/analytics");
+  return { success: "Price updated." };
+}
+
 export async function logHarvest(_prev: HarvestState, formData: FormData): Promise<HarvestState> {
   const session = await auth();
   if (!session?.user?.id) return { error: "Not authenticated." };

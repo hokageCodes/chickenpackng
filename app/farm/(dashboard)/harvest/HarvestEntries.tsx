@@ -5,9 +5,17 @@ import { useRouter } from "next/navigation";
 import { Plus, X, Pencil, Trash2, Package } from "lucide-react";
 import { logHarvest, updateHarvest, deleteHarvest, type HarvestState } from "./actions";
 
-type HarvestRow = { id: string; date: string; targetLabel?: string | null; quantity: number; weightKg: number };
+type HarvestRow = {
+  id: string;
+  date: string;
+  targetLabel?: string | null;
+  quantity: number;
+  weightKg: number;
+  expectedNGN: number; // 0 when the produce has no farm-gate price set
+};
 
 const today = () => new Date().toISOString().slice(0, 10);
+const naira = (n: number) => "₦" + Math.round(n).toLocaleString("en-NG");
 const inputClass = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary";
 const labelClass = "mb-1 block text-xs font-medium text-muted-foreground";
 const submitClass = "w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60";
@@ -89,6 +97,16 @@ export default function HarvestEntries({ rows, targets }: { rows: HarvestRow[]; 
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{r.date} — {r.targetLabel}</p>
                 <p className="mt-1 text-xs text-muted-foreground">Qty {r.quantity} • {r.weightKg} kg</p>
+              </div>
+              <div className="ml-auto shrink-0 text-right">
+                {r.expectedNGN > 0 ? (
+                  <>
+                    <p className="text-sm font-bold tabular-nums">{naira(r.expectedNGN)}</p>
+                    <p className="text-[11px] text-muted-foreground">expected</p>
+                  </>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground/70">no price set</p>
+                )}
               </div>
               <div className="flex gap-2">
                 <button onClick={() => setEditing(r)} className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" aria-label="Edit"><Pencil size={16} /></button>

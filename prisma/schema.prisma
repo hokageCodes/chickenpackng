@@ -223,6 +223,16 @@ model Inventory {
   updatedAt DateTime      @updatedAt
 }
 
+/// Farm-gate price list — what we expect to earn per unit of produce.
+/// Deliberately separate from storefront `Product` pricing so retail promos
+/// don't distort farm P&L. Drives "expected revenue" on harvests/egg logs.
+model FarmPrice {
+  kind      InventoryKind @id
+  unit      String // "kg" | "crate" | "piece"
+  priceNGN  Decimal       @default(0) @db.Decimal(12, 2)
+  updatedAt DateTime      @updatedAt
+}
+
 // ── Finance ─────────────────────────────────────────────────
 enum ExpenseCategory {
   FEED
